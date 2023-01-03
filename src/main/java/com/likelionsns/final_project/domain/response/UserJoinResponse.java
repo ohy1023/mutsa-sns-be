@@ -1,4 +1,4 @@
-package com.likelionsns.final_project.domain.dto;
+package com.likelionsns.final_project.domain.response;
 
 import lombok.Builder;
 import lombok.Getter;

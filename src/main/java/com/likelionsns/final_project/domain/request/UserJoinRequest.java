@@ -1,6 +1,7 @@
-package com.likelionsns.final_project.domain.dto;
+package com.likelionsns.final_project.domain.request;
 
 import com.likelionsns.final_project.domain.entity.User;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -9,14 +10,18 @@ import lombok.NoArgsConstructor;
 public class UserJoinRequest {
 
     private String userName;
-
     private String password;
 
-    public User toEntity() {
+    public User toEntity(String password) {
         return User.builder()
                 .userName(this.userName)
-                .password(this.password)
+                .password(password)
                 .build();
     }
 
+    @Builder
+    public UserJoinRequest(String userName, String password) {
+        this.userName = userName;
+        this.password = password;
+    }
 }

@@ -32,7 +32,7 @@ public class User extends BaseEntity{
     }
 
     @Builder
-    public User(Integer id, String userName, String password, UserRole userRole) {
+    public User(Integer id, String userName, String password,UserRole userRole) {
         this.id = id;
         this.userName = userName;
         this.password = password;

@@ -21,3 +21,6 @@ logging:
   level:
     org.hibernate.SQL: debug    # Logger
     org.hibernate.type: trace   # Show Query Parameter
+
+jwt:
+  secret: hello
