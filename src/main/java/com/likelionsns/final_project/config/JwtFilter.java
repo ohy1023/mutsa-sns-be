@@ -31,8 +31,7 @@ public class JwtFilter extends OncePerRequestFilter {
         final String authorizationHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
         log.info("authorization : {}", authorizationHeader);
 
-        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
-            log.info("여기 지나가나 ===========");
+        if (authorizationHeader == null || isNotStartBearer(authorizationHeader)) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -50,7 +49,6 @@ public class JwtFilter extends OncePerRequestFilter {
 
         //userDetail 가져오기
         UserDto user = userService.getUserByUserName(userName);
-//        log.info("userRole : {}", user.getGrade());
 
         if (JwtUtils.isExpired(token, secretKey)) {
             filterChain.doFilter(request, response);
@@ -61,5 +59,9 @@ public class JwtFilter extends OncePerRequestFilter {
         authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
         SecurityContextHolder.getContext().setAuthentication(authenticationToken); // 권한 부여
         filterChain.doFilter(request, response);
+    }
+
+    private static boolean isNotStartBearer(String authorizationHeader) {
+        return !authorizationHeader.startsWith("Bearer ");
     }
 }

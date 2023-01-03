@@ -45,20 +45,18 @@ public class UserService {
         //userName 있는지 여부 확인
         //없으면 NOT_FOUND 에러 발생
         User user = userRepository.findByUserName(userName)
-                .orElseThrow(() -> new SnsAppException(ErrorCode.USER_NOT_FOUND, String.format("%s는 존재하지 않습니다.", userName)));
+                .orElseThrow(() -> new SnsAppException(USERNAME_NOT_FOUND, String.format("%s는 존재하지 않습니다.", userName)));
 
         //password 일치 하는지 여부 확인
-        if(!encoder.matches(password, user.getPassword()))
-            throw new SnsAppException(ErrorCode.INVALID_PASSWORD, String.format("id 또는 password 가 틀렸습니다."));
+        if(isWrongPassword(password, user))
+            throw new SnsAppException(INVALID_PASSWORD, String.format("id 또는 password 가 틀렸습니다."));
 
         return JwtUtils.createToken(userName, secretKey, expiredTimeMs);
     }
 
-
-
     public UserDto getUserByUserName(String userName) {
         User user = userRepository.findByUserName(userName)
-                .orElseThrow(() -> new SnsAppException(USER_NOT_FOUND, userName + "이 없습니다."));
+                .orElseThrow(() -> new SnsAppException(USERNAME_NOT_FOUND, userName + "이 없습니다."));
         return UserDto.builder()
                 .id(user.getId())
                 .userName(user.getUserName())
@@ -66,8 +64,8 @@ public class UserService {
                 .userRole(user.getUserRole())
                 .build();
     }
-
-
-
+    private boolean isWrongPassword(String password, User user) {
+        return !encoder.matches(password, user.getPassword());
+    }
 
 }

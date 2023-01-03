@@ -8,6 +8,9 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static com.likelionsns.final_project.domain.enums.UserRole.*;
 
 @Entity
@@ -16,6 +19,7 @@ import static com.likelionsns.final_project.domain.enums.UserRole.*;
 public class User extends BaseEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "user_id")
     private Integer id;
 
     private String userName;
@@ -25,6 +29,10 @@ public class User extends BaseEntity{
     @Enumerated(EnumType.STRING)
     @Column(length = 10, columnDefinition = "varchar(10) default 'USER'")
     private UserRole userRole;
+
+    @OneToMany(mappedBy = "user")
+    private List<Post> posts = new ArrayList<>();
+
 
     @PrePersist
     public void prePersist() {
