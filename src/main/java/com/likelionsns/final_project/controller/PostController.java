@@ -1,7 +1,10 @@
 package com.likelionsns.final_project.controller;
 
+import com.likelionsns.final_project.domain.dto.CommentDto;
 import com.likelionsns.final_project.domain.dto.PostDto;
+import com.likelionsns.final_project.domain.entity.Comment;
 import com.likelionsns.final_project.domain.entity.Post;
+import com.likelionsns.final_project.domain.request.CommentCreateRequest;
 import com.likelionsns.final_project.domain.request.PostCreateRequest;
 import com.likelionsns.final_project.domain.request.PostUpdateRequest;
 import com.likelionsns.final_project.domain.response.*;
@@ -56,6 +59,8 @@ public class PostController {
         postService.delete(authentication.getName(),postId);
         return Response.success(new PostResponse("포스트 삭제 완료",postId));
     }
+
+
 
 
 
