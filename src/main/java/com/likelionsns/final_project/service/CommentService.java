@@ -1,7 +1,6 @@
 package com.likelionsns.final_project.service;
 
 import com.likelionsns.final_project.domain.dto.CommentDto;
-import com.likelionsns.final_project.domain.dto.PostDto;
 import com.likelionsns.final_project.domain.entity.Comment;
 import com.likelionsns.final_project.domain.entity.Post;
 import com.likelionsns.final_project.domain.entity.User;
