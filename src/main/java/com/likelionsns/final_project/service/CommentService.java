@@ -6,6 +6,7 @@ import com.likelionsns.final_project.domain.entity.Post;
 import com.likelionsns.final_project.domain.entity.User;
 import com.likelionsns.final_project.domain.request.CommentCreateRequest;
 import com.likelionsns.final_project.domain.request.CommentUpdateRequest;
+import com.likelionsns.final_project.domain.response.CommentUpdateResponse;
 import com.likelionsns.final_project.exception.SnsAppException;
 import com.likelionsns.final_project.repository.CommentRepository;
 import com.likelionsns.final_project.repository.PostRepository;
@@ -45,7 +46,7 @@ public class CommentService {
         return commentDtos;
     }
 
-    public CommentDto updateComment(Integer postId, Integer commentId, CommentUpdateRequest commentUpdateRequest, String userName) {
+    public CommentUpdateResponse updateComment(Integer postId, Integer commentId, CommentUpdateRequest commentUpdateRequest, String userName) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new SnsAppException(POST_NOT_FOUND, POST_NOT_FOUND.getMessage()));
 
@@ -60,7 +61,7 @@ public class CommentService {
         }
         comment.setComment(commentUpdateRequest.getComment());
         Comment updateComment = commentRepository.save(comment);
-        return CommentDto.toCommentDto(updateComment);
+        return CommentUpdateResponse.toResponse(updateComment);
     }
 
     public boolean deleteComment(Integer postId, Integer commentId, String userName) {

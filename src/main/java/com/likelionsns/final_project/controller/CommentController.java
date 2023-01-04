@@ -4,6 +4,7 @@ import com.likelionsns.final_project.domain.dto.CommentDto;
 import com.likelionsns.final_project.domain.request.CommentCreateRequest;
 import com.likelionsns.final_project.domain.request.CommentUpdateRequest;
 import com.likelionsns.final_project.domain.response.CommentResponse;
+import com.likelionsns.final_project.domain.response.CommentUpdateResponse;
 import com.likelionsns.final_project.domain.response.Response;
 import com.likelionsns.final_project.service.CommentService;
 import lombok.RequiredArgsConstructor;
@@ -35,9 +36,9 @@ public class CommentController {
     }
 
     @PutMapping("/{postId}/comments/{commentId}")
-    public Response<CommentDto> updateComment(@PathVariable Integer postId, @PathVariable Integer commentId, @RequestBody CommentUpdateRequest commentUpdateRequest, Authentication authentication) {
-        CommentDto commentDto = commentService.updateComment(postId, commentId, commentUpdateRequest, authentication.getName());
-        return Response.success(commentDto);
+    public Response<CommentUpdateResponse> updateComment(@PathVariable Integer postId, @PathVariable Integer commentId, @RequestBody CommentUpdateRequest commentUpdateRequest, Authentication authentication) {
+        CommentUpdateResponse commentUpdateResponse = commentService.updateComment(postId, commentId, commentUpdateRequest, authentication.getName());
+        return Response.success(commentUpdateResponse);
     }
 
     @DeleteMapping("/{postId}/comments/{commentId}")
