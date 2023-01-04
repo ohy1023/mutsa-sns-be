@@ -33,6 +33,9 @@ public class Post extends BaseEntity {
     @OneToMany(mappedBy = "comment")
     private List<Comment> comments = new ArrayList<>();
 
+    @OneToMany(mappedBy = "post")
+    private List<Like> likes = new ArrayList<>();
+
     @Builder
     public Post(Integer id, String title, String body, User user, List<Comment> comments) {
         this.id = id;
