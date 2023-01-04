@@ -13,6 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 
+import javax.transaction.Transactional;
 import java.util.Objects;
 
 import static com.likelionsns.final_project.exception.ErrorCode.*;
@@ -23,6 +24,7 @@ public class PostService {
     private final UserRepository userRepository;
     private final PostRepository postRepository;
 
+    @Transactional
     public PostDto createPost(PostCreateRequest postCreateRequest, String userName) {
         User user = userRepository.findByUserName(userName)
                 .orElseThrow(() -> new SnsAppException(USERNAME_NOT_FOUND, USERNAME_NOT_FOUND.getMessage()));

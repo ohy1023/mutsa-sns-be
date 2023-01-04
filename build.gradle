@@ -28,8 +28,9 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     implementation "io.springfox:springfox-boot-starter:3.0.0"
 
-//    developmentOnly 'org.springframework.boot:spring-boot-devtools'
-    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-security', version: '2.7.5'
+    testCompileOnly 'org.projectlombok:lombok'
+    testAnnotationProcessor 'org.projectlombok:lombok'
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-security'
     implementation 'org.springframework.security:spring-security-test'
     implementation group: 'io.jsonwebtoken', name: 'jjwt', version: '0.9.1'
 

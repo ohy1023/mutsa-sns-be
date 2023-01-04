@@ -1,10 +1,6 @@
 package com.likelionsns.final_project.controller;
 
-import com.likelionsns.final_project.domain.dto.CommentDto;
 import com.likelionsns.final_project.domain.dto.PostDto;
-import com.likelionsns.final_project.domain.entity.Comment;
-import com.likelionsns.final_project.domain.entity.Post;
-import com.likelionsns.final_project.domain.request.CommentCreateRequest;
 import com.likelionsns.final_project.domain.request.PostCreateRequest;
 import com.likelionsns.final_project.domain.request.PostUpdateRequest;
 import com.likelionsns.final_project.domain.response.*;
@@ -20,7 +16,6 @@ import org.springframework.data.web.SortDefault;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
-@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/posts")
