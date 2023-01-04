@@ -1,14 +1,10 @@
 package com.likelionsns.final_project.service;
 
-import com.likelionsns.final_project.domain.dto.CommentDto;
 import com.likelionsns.final_project.domain.dto.PostDto;
 import com.likelionsns.final_project.domain.entity.Post;
 import com.likelionsns.final_project.domain.entity.User;
 import com.likelionsns.final_project.domain.request.PostCreateRequest;
-import com.likelionsns.final_project.domain.request.PostUpdateRequest;
-import com.likelionsns.final_project.exception.ErrorCode;
 import com.likelionsns.final_project.exception.SnsAppException;
-import com.likelionsns.final_project.repository.CommentRepository;
 import com.likelionsns.final_project.repository.PostRepository;
 import com.likelionsns.final_project.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -66,7 +62,7 @@ public class PostService {
     public boolean delete(String userName, Integer postId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new SnsAppException(POST_NOT_FOUND, POST_NOT_FOUND.getMessage()));
-        User userEntity = userRepository.findByUserName(userName)
+        User user = userRepository.findByUserName(userName)
                 .orElseThrow(() -> new SnsAppException(USERNAME_NOT_FOUND, USERNAME_NOT_FOUND.getMessage()));
 
         if (isMismatch(userName, post)) {
@@ -76,6 +72,15 @@ public class PostService {
         return true;
     }
 
+    public Page<PostDto> getMyPost(Pageable pageable, String userName) {
+
+        User user = userRepository.findByUserName(userName)
+                .orElseThrow(() -> new SnsAppException(USERNAME_NOT_FOUND, USERNAME_NOT_FOUND.getMessage()));
+
+        Page<Post> posts = postRepository.findAllByUserId(pageable,user.getId());
+        Page<PostDto> myPosts = PostDto.toDtoList(posts);
+        return myPosts;
+    }
     private static boolean isMismatch(String userName, Post post) {
         return !Objects.equals(post.getUser().getUserName(), userName);
     }

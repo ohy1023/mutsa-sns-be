@@ -42,7 +42,7 @@ public class PostController {
 
     @GetMapping
     public Response<Page<PostDto>> getPostList(@PageableDefault(size = 20)
-                                                               @SortDefault(sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
+                                               @SortDefault(sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
         Page<PostDto> postDtos = postService.getAllItems(pageable);
         return Response.success(postDtos);
     }
@@ -56,12 +56,15 @@ public class PostController {
 
     @DeleteMapping("/{postId}")
     public Response<PostResponse> deleteById(@PathVariable Integer postId, Authentication authentication) {
-        postService.delete(authentication.getName(),postId);
-        return Response.success(new PostResponse("포스트 삭제 완료",postId));
+        postService.delete(authentication.getName(), postId);
+        return Response.success(new PostResponse("포스트 삭제 완료", postId));
     }
 
-
-
-
+    @GetMapping("/my")
+    public Response<Page<PostDto>> getMyPost(@PageableDefault(size = 20)
+                                                   @SortDefault(sort = "id", direction = Sort.Direction.DESC) Pageable pageable,Authentication authentication) {
+        Page<PostDto> myPosts = postService.getMyPost(pageable,authentication.getName());
+        return Response.success(myPosts);
+    }
 
 }
