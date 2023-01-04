@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.sql.SQLException;
 
+import static org.springframework.http.HttpStatus.*;
+
 @RestControllerAdvice
 public class ExceptionManager {
     @ExceptionHandler(SnsAppException.class)
@@ -22,14 +24,14 @@ public class ExceptionManager {
     @ExceptionHandler(SQLException.class)
     public ResponseEntity<?> sqlExceptionHandler(SQLException e){
         ErrorResponse errorResponse = new ErrorResponse(ErrorCode.DATABASE_ERROR, e.getMessage());
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+        return ResponseEntity.status(INTERNAL_SERVER_ERROR)
                 .body(Response.error("ERROR", errorResponse));
     }
 
 
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<?> runtimeExceptionHandler(RuntimeException e){
-        return ResponseEntity.status(HttpStatus.CONFLICT)
+        return ResponseEntity.status(CONFLICT)
                 .body(e.getMessage());
     }
 }
