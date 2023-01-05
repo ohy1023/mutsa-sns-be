@@ -53,7 +53,7 @@ public class PostController {
         return Response.success(new PostResponse("포스트 수정 완료", postId));
     }
 
-    @ApiOperation(value = "포스트 삭제", notes = "soft delete")
+    @ApiOperation(value = "포스트 삭제", notes = "soft delete 사용 cf)post와 like 같이 삭제 됨")
     @DeleteMapping("/{postId}")
     public Response<PostResponse> deleteById(@PathVariable Integer postId, Authentication authentication) {
         postService.delete(authentication.getName(), postId);
