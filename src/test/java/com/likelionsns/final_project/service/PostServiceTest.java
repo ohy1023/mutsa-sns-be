@@ -81,9 +81,6 @@ class PostServiceTest {
                 .isExactlyInstanceOf(SnsAppException.class)
                 .hasMessage(USERNAME_NOT_FOUND.getMessage());
 
-
-
-
     }
 
 }

@@ -40,7 +40,7 @@ class CommentServiceTest {
     private CommentRepository commentRepository;
 
     User user = UserInfoFixture.get("user1", "password1");
-    User writer = UserInfoFixture.get("writer", "password2");
+    User user2 = UserInfoFixture.get("user2", "password2");
     Post post = PostInfoFixture.get(user.getUserName(),user.getPassword());
     Comment comment = CommentInfoFixture.get(user.getUserName(), user.getPassword());
 
@@ -93,8 +93,8 @@ class CommentServiceTest {
         // given
         CommentUpdateRequest updateRequest = new CommentUpdateRequest("updated comment");
 
-        given(userRepository.findByUserName(writer.getUserName()))
-                .willReturn(Optional.of(writer));
+        given(userRepository.findByUserName(user2.getUserName()))
+                .willReturn(Optional.of(user2));
 
         given(postRepository.findById(post.getId()))
                 .willReturn(Optional.of(post));
@@ -103,7 +103,7 @@ class CommentServiceTest {
                 .willReturn(Optional.of(comment));
 
         // when & then
-        assertThatThrownBy(() -> commentService.updateComment(post.getId(), comment.getId(), updateRequest, writer.getUserName()))
+        assertThatThrownBy(() -> commentService.updateComment(post.getId(), comment.getId(), updateRequest, user2.getUserName()))
                 .isExactlyInstanceOf(SnsAppException.class)
                 .hasMessage(INVALID_PERMISSION.getMessage());
     }
