@@ -2,8 +2,13 @@ package com.likelionsns.final_project.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.likelionsns.final_project.domain.dto.PostDto;
+import com.likelionsns.final_project.domain.entity.Post;
+import com.likelionsns.final_project.domain.entity.User;
 import com.likelionsns.final_project.domain.request.PostCreateRequest;
+import com.likelionsns.final_project.domain.request.PostUpdateRequest;
 import com.likelionsns.final_project.exception.SnsAppException;
+import com.likelionsns.final_project.fixture.PostInfoFixture;
+import com.likelionsns.final_project.fixture.UserInfoFixture;
 import com.likelionsns.final_project.service.LikeService;
 import com.likelionsns.final_project.service.PostService;
 import org.junit.jupiter.api.DisplayName;
@@ -23,8 +28,7 @@ import static com.likelionsns.final_project.exception.ErrorCode.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -130,6 +134,113 @@ class PostControllerTest {
                 .andDo(print());
     }
 
+
+    @Test
+    @DisplayName("포스트 수정 성공")
+    @WithMockUser
+    void updatePost() throws Exception {
+        // given
+        PostUpdateRequest updateRequest = PostUpdateRequest.builder()
+                .title("updated title")
+                .body("updated body")
+                .build();
+
+        given(postService.update(any(), any(), any(), any()))
+                .willReturn(PostDto.builder()
+                        .id(1)
+                        .userName("user")
+                        .title(updateRequest.getTitle())
+                        .body(updateRequest.getBody())
+                        .build());
+
+        // when & then
+        mockMvc.perform(put("/api/v1/posts/1")
+                        .with(csrf())
+                        .content(objectMapper.writeValueAsBytes(updateRequest))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.resultCode").value("SUCCESS"))
+                .andExpect(jsonPath("$.result.message").exists())
+                .andExpect(jsonPath("$.result.postId").value(1))
+                .andDo(print());
+
+
+    }
+
+    @Test
+    @DisplayName("포스트 수정 실패(1) : 인증 실패")
+    @WithAnonymousUser
+    void updatePostFail01() throws Exception {
+        // given
+        PostUpdateRequest updateRequest = PostUpdateRequest.builder()
+                .title("updated title")
+                .body("updated body")
+                .build();
+
+        given(postService.update(any(), any(), any(), any()))
+                .willThrow(new SnsAppException(INVALID_PERMISSION, INVALID_PERMISSION.getMessage()));
+
+        // when & then
+        mockMvc.perform(put("/api/v1/posts/1")
+                        .with(csrf())
+                        .content(objectMapper.writeValueAsBytes(updateRequest))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isUnauthorized())
+                .andDo(print());
+
+
+    }
+    @Test
+    @DisplayName("포스트 수정 실패(2) : 작성자 불일치")
+    @WithMockUser
+    void updatePostFail02() throws Exception {
+        // given
+        PostUpdateRequest updateRequest = PostUpdateRequest.builder()
+                .title("updated title")
+                .body("updated body")
+                .build();
+
+        given(postService.update(any(), any(), any(), any()))
+                .willThrow(new SnsAppException(INVALID_PERMISSION, INVALID_PERMISSION.getMessage()));
+
+        // when & then
+        mockMvc.perform(put("/api/v1/posts/1")
+                        .with(csrf())
+                        .content(objectMapper.writeValueAsBytes(updateRequest))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.resultCode").value("ERROR"))
+                .andExpect(jsonPath("$.result.errorCode").value("INVALID_PERMISSION"))
+                .andExpect(jsonPath("$.result.message").value(INVALID_PERMISSION.getMessage()))
+                .andDo(print());
+
+
+    }
+    @Test
+    @DisplayName("포스트 수정 실패(3) : 데이터베이스 에러")
+    @WithMockUser
+    void updatePostFail03() throws Exception {
+        // given
+        PostUpdateRequest updateRequest = PostUpdateRequest.builder()
+                .title("updated title")
+                .body("updated body")
+                .build();
+
+        given(postService.update(any(), any(), any(), any()))
+                .willThrow(new SnsAppException(DATABASE_ERROR, DATABASE_ERROR.getMessage()));
+
+        // when & then
+        mockMvc.perform(put("/api/v1/posts/1")
+                        .with(csrf())
+                        .content(objectMapper.writeValueAsBytes(updateRequest))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isInternalServerError())
+                .andExpect(jsonPath("$.resultCode").value("ERROR"))
+                .andExpect(jsonPath("$.result.errorCode").value("DATABASE_ERROR"))
+                .andExpect(jsonPath("$.result.message").value(DATABASE_ERROR.getMessage()))
+                .andDo(print());
+    }
+
     @Test
     @DisplayName("마이 피드 조회 성공")
     @WithMockUser
@@ -161,6 +272,4 @@ class PostControllerTest {
                 .andExpect(status().isUnauthorized())
                 .andDo(print());
     }
-
-
 }
