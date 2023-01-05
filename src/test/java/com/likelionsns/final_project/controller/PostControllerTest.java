@@ -4,13 +4,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.likelionsns.final_project.domain.dto.PostDto;
 import com.likelionsns.final_project.domain.request.PostCreateRequest;
 import com.likelionsns.final_project.exception.SnsAppException;
+import com.likelionsns.final_project.service.LikeService;
 import com.likelionsns.final_project.service.PostService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -19,6 +22,7 @@ import java.time.LocalDateTime;
 import static com.likelionsns.final_project.exception.ErrorCode.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -35,6 +39,9 @@ class PostControllerTest {
 
     @MockBean
     PostService postService;
+
+    @MockBean
+    LikeService likeService;
 
     @Autowired
     ObjectMapper objectMapper;
@@ -123,4 +130,38 @@ class PostControllerTest {
                 .andExpect(jsonPath("$.result.createdAt").exists())
                 .andDo(print());
     }
+
+    @Test
+    @DisplayName("마이 피드 조회 성공")
+    @WithMockUser
+    void myFeedSuccess() throws Exception {
+        // given
+        given(postService.getMyPost(any(), any()))
+                .willReturn(Page.empty());
+
+        // when & then
+        mockMvc.perform(get("/api/v1/posts/my")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isAccepted())
+                .andExpect(jsonPath("$.resultCode").value("SUCCESS"))
+                .andExpect(jsonPath("$.result").exists())
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("마이 피드 조회 실패 - 로그인 X")
+    @WithAnonymousUser
+    void myFeedFail() throws Exception {
+        // given
+        given(postService.getMyPost(any(), any()))
+                .willReturn(Page.empty());
+
+        // when & then
+        mockMvc.perform(get("/api/v1/posts/my")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isUnauthorized())
+                .andDo(print());
+    }
+
+
 }

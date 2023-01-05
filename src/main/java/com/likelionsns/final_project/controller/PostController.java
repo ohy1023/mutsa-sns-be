@@ -15,6 +15,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.data.web.SortDefault;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -60,10 +61,10 @@ public class PostController {
     }
     @ApiOperation(value = "나의 피드 목록", notes = "로그인한 유저의 포스트 목록")
     @GetMapping("/my")
-    public Response<Page<PostDto>> getMyPost(@PageableDefault(size = 20)
-                                                   @SortDefault(sort = "id", direction = Sort.Direction.DESC) Pageable pageable,Authentication authentication) {
+    public ResponseEntity<Response<Page<PostDto>>> getMyPost(@PageableDefault(size = 20)
+                                                   @SortDefault(sort = "id", direction = Sort.Direction.DESC) Pageable pageable, Authentication authentication) {
         Page<PostDto> myPosts = postService.getMyPost(pageable,authentication.getName());
-        return Response.success(myPosts);
+        return ResponseEntity.accepted().body(Response.success(myPosts));
     }
 
 }
