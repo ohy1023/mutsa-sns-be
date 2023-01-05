@@ -14,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.data.web.SortDefault;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -40,9 +41,9 @@ public class CommentController {
 
     @ApiOperation(value = "댓글 수정")
     @PutMapping("/{postId}/comments/{commentId}")
-    public Response<CommentUpdateResponse> updateComment(@PathVariable Integer postId, @PathVariable Integer commentId, @RequestBody CommentUpdateRequest commentUpdateRequest, Authentication authentication) {
+    public ResponseEntity<Response<CommentUpdateResponse>> updateComment(@PathVariable Integer postId, @PathVariable Integer commentId, @RequestBody CommentUpdateRequest commentUpdateRequest, Authentication authentication) {
         CommentUpdateResponse commentUpdateResponse = commentService.updateComment(postId, commentId, commentUpdateRequest, authentication.getName());
-        return Response.success(commentUpdateResponse);
+        return ResponseEntity.accepted().body(Response.success(commentUpdateResponse));
     }
 
     @ApiOperation(value = "댓글 삭제",notes = "soft delete")

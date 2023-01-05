@@ -4,7 +4,6 @@ import com.likelionsns.final_project.domain.dto.PostDto;
 import com.likelionsns.final_project.domain.entity.Post;
 import com.likelionsns.final_project.domain.entity.User;
 import com.likelionsns.final_project.domain.request.PostCreateRequest;
-import com.likelionsns.final_project.exception.ErrorCode;
 import com.likelionsns.final_project.exception.SnsAppException;
 import com.likelionsns.final_project.fixture.PostInfoFixture;
 import com.likelionsns.final_project.fixture.UserInfoFixture;

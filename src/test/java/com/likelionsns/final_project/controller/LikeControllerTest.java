@@ -1,7 +1,5 @@
 package com.likelionsns.final_project.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.likelionsns.final_project.exception.ErrorCode;
 import com.likelionsns.final_project.exception.SnsAppException;
 import com.likelionsns.final_project.service.LikeService;
 import org.junit.jupiter.api.DisplayName;
@@ -31,9 +29,6 @@ class LikeControllerTest {
 
     @MockBean
     LikeService likeService;
-
-    @Autowired
-    ObjectMapper objectMapper;
 
     @Test
     @DisplayName("좋아요 누르기 성공")
