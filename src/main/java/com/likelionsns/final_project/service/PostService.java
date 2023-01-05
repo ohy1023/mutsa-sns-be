@@ -5,6 +5,7 @@ import com.likelionsns.final_project.domain.entity.Post;
 import com.likelionsns.final_project.domain.entity.User;
 import com.likelionsns.final_project.domain.request.PostCreateRequest;
 import com.likelionsns.final_project.exception.SnsAppException;
+import com.likelionsns.final_project.repository.LikeRepository;
 import com.likelionsns.final_project.repository.PostRepository;
 import com.likelionsns.final_project.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +24,7 @@ import static com.likelionsns.final_project.exception.ErrorCode.*;
 public class PostService {
     private final UserRepository userRepository;
     private final PostRepository postRepository;
+    private final LikeRepository likeRepository;
 
     @Transactional
     public PostDto createPost(PostCreateRequest postCreateRequest, String userName) {
@@ -70,9 +72,11 @@ public class PostService {
         if (isMismatch(userName, post)) {
             throw new SnsAppException(INVALID_PERMISSION, INVALID_PERMISSION.getMessage());
         }
-        postRepository.delete(post);
+        deletePostAndLike(post);
         return true;
     }
+
+
 
     public Page<PostDto> getMyPost(Pageable pageable, String userName) {
 
@@ -85,6 +89,10 @@ public class PostService {
     }
     private static boolean isMismatch(String userName, Post post) {
         return !Objects.equals(post.getUser().getUserName(), userName);
+    }
+    private void deletePostAndLike(Post post) {
+        likeRepository.deleteAll(likeRepository.findAllByPost(post));
+        postRepository.delete(post);
     }
 
 

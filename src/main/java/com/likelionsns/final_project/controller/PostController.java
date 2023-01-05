@@ -4,6 +4,8 @@ import com.likelionsns.final_project.domain.dto.PostDto;
 import com.likelionsns.final_project.domain.request.PostCreateRequest;
 import com.likelionsns.final_project.domain.request.PostUpdateRequest;
 import com.likelionsns.final_project.domain.response.*;
+import com.likelionsns.final_project.repository.LikeRepository;
+import com.likelionsns.final_project.service.LikeService;
 import com.likelionsns.final_project.service.PostService;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/posts")
 public class PostController {
     private final PostService postService;
+    private final LikeService likeService;
 
     @ApiOperation(value = "포스트 등록")
     @PostMapping
