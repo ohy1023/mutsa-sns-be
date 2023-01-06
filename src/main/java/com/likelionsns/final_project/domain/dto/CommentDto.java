@@ -36,7 +36,7 @@ public class CommentDto {
                 .build();
     }
 
-    public static Page<CommentDto> toDtoList(Page<Comment> comments){
+    public static Page<CommentDto> toDtoList(Page<Comment> comments) {
         Page<CommentDto> commentDtoList = comments.map(m -> CommentDto.builder()
                 .id(m.getId())
                 .comment(m.getComment())

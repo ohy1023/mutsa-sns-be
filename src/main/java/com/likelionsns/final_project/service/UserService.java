@@ -38,6 +38,7 @@ public class UserService {
                 .userName(savedUser.getUserName())
                 .build();
     }
+
     public String login(String userName, String password) {
 
         //userName 있는지 여부 확인
@@ -46,7 +47,7 @@ public class UserService {
                 .orElseThrow(() -> new SnsAppException(USERNAME_NOT_FOUND, USERNAME_NOT_FOUND.getMessage()));
 
         //password 일치 하는지 여부 확인
-        if(isWrongPassword(password, user))
+        if (isWrongPassword(password, user))
             throw new SnsAppException(INVALID_PASSWORD, INVALID_PASSWORD.getMessage());
 
         return JwtUtils.createToken(userName, secretKey, expiredTimeMs);
@@ -62,6 +63,7 @@ public class UserService {
                 .userRole(user.getUserRole())
                 .build();
     }
+
     private boolean isWrongPassword(String password, User user) {
         return !encoder.matches(password, user.getPassword());
     }

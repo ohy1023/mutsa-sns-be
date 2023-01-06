@@ -39,7 +39,7 @@ public class PostDto {
     }
 
     /* Page<Entity> -> Page<Dto> 변환처리 */
-    public static Page<PostDto> toDtoList(Page<Post> postEntities){
+    public static Page<PostDto> toDtoList(Page<Post> postEntities) {
         Page<PostDto> postDtoList = postEntities.map(m -> PostDto.builder()
                 .id(m.getId())
                 .title(m.getTitle())

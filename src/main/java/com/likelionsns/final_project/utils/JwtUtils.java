@@ -18,6 +18,7 @@ public class JwtUtils {
                 .signWith(HS256, key)
                 .compact();
     }
+
     public static boolean isExpired(String token, String key) {
         Date expiredDate = extractClaims(token, key).getExpiration(); // expire timestamp를 return함
         return expiredDate.before(new Date()); // 현재보다 전인지 check를 합니다.

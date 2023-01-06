@@ -11,12 +11,17 @@ import com.likelionsns.final_project.fixture.PostInfoFixture;
 import com.likelionsns.final_project.fixture.UserInfoFixture;
 import com.likelionsns.final_project.service.LikeService;
 import com.likelionsns.final_project.service.PostService;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -25,8 +30,11 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.time.LocalDateTime;
 
 import static com.likelionsns.final_project.exception.ErrorCode.*;
+import static org.assertj.core.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -239,6 +247,27 @@ class PostControllerTest {
                 .andExpect(jsonPath("$.result.errorCode").value("DATABASE_ERROR"))
                 .andExpect(jsonPath("$.result.message").value(DATABASE_ERROR.getMessage()))
                 .andDo(print());
+    }
+
+    @Test
+    @WithMockUser
+    @DisplayName("pageable 파라미터 검증")
+    void evaluates_pageable_parameter() throws Exception {
+
+        mockMvc.perform(get("/api/v1/posts")
+                        .param("page", "0")
+                        .param("size", "3")
+                        .param("sort", "createdAt,desc"))
+                .andExpect(status().isOk());
+
+        ArgumentCaptor<Pageable> pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
+
+        verify(postService).getAllItems(pageableCaptor.capture());
+        PageRequest pageable = (PageRequest) pageableCaptor.getValue();
+
+        assertThat(0).isEqualTo(pageable.getPageNumber());
+        assertThat(3).isEqualTo(pageable.getPageSize());
+        assertThat(Sort.by("createdAt", "desc")).isEqualTo(pageable.withSort(Sort.by("createdAt", "desc")).getSort());
     }
 
     @Test

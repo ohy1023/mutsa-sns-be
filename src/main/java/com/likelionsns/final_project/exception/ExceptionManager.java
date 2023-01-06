@@ -14,7 +14,7 @@ import static org.springframework.http.HttpStatus.*;
 @RestControllerAdvice
 public class ExceptionManager {
     @ExceptionHandler(SnsAppException.class)
-    public ResponseEntity<?> appExceptionHandler(SnsAppException e){
+    public ResponseEntity<?> appExceptionHandler(SnsAppException e) {
         ErrorResponse errorResponse = new ErrorResponse(e.getErrorCode(), e.getMessage());
         return ResponseEntity.status(e.getErrorCode().getStatus())
                 .body(Response.error("ERROR", errorResponse));
@@ -22,7 +22,7 @@ public class ExceptionManager {
 
 
     @ExceptionHandler(SQLException.class)
-    public ResponseEntity<?> sqlExceptionHandler(SQLException e){
+    public ResponseEntity<?> sqlExceptionHandler(SQLException e) {
         ErrorResponse errorResponse = new ErrorResponse(ErrorCode.DATABASE_ERROR, e.getMessage());
         return ResponseEntity.status(INTERNAL_SERVER_ERROR)
                 .body(Response.error("ERROR", errorResponse));
@@ -30,7 +30,7 @@ public class ExceptionManager {
 
 
     @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<?> runtimeExceptionHandler(RuntimeException e){
+    public ResponseEntity<?> runtimeExceptionHandler(RuntimeException e) {
         return ResponseEntity.status(CONFLICT)
                 .body(e.getMessage());
     }

@@ -1,6 +1,7 @@
 package com.likelionsns.final_project.service;
 
 import com.likelionsns.final_project.domain.dto.CommentDto;
+import com.likelionsns.final_project.domain.entity.Alarm;
 import com.likelionsns.final_project.domain.entity.Comment;
 import com.likelionsns.final_project.domain.entity.Post;
 import com.likelionsns.final_project.domain.entity.User;
@@ -8,6 +9,7 @@ import com.likelionsns.final_project.domain.request.CommentCreateRequest;
 import com.likelionsns.final_project.domain.request.CommentUpdateRequest;
 import com.likelionsns.final_project.domain.response.CommentUpdateResponse;
 import com.likelionsns.final_project.exception.SnsAppException;
+import com.likelionsns.final_project.repository.AlarmRepository;
 import com.likelionsns.final_project.repository.CommentRepository;
 import com.likelionsns.final_project.repository.PostRepository;
 import com.likelionsns.final_project.repository.UserRepository;
@@ -18,6 +20,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Objects;
 
+import static com.likelionsns.final_project.domain.enums.AlarmType.*;
 import static com.likelionsns.final_project.exception.ErrorCode.*;
 
 @Service
@@ -27,6 +30,7 @@ public class CommentService {
     private final PostRepository postRepository;
 
     private final CommentRepository commentRepository;
+    private final AlarmRepository alarmRepository;
 
     public CommentDto createComment(Integer postId, String userName, CommentCreateRequest commentCreateRequest) {
         Post post = postRepository.findById(postId)
@@ -37,11 +41,22 @@ public class CommentService {
 
         Comment savedComment = commentRepository.save(commentCreateRequest.toEntity(user, post));
 
+        alarmRepository.save(Alarm.builder()
+                .user(post.getUser())
+                .alarmType(NEW_COMMENT_ON_POST)
+                .text(NEW_COMMENT_ON_POST.getAlarmText())
+                .fromUserId(user.getId())
+                .targetId(post.getId())
+                .build());
+
         return CommentDto.toCommentDto(savedComment);
     }
 
-    public Page<CommentDto> getAllItems(Pageable pageable) {
-        Page<Comment> comments = commentRepository.findAll(pageable);
+    public Page<CommentDto> getAllItems(Integer postId, Pageable pageable) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new SnsAppException(POST_NOT_FOUND, POST_NOT_FOUND.getMessage()));
+
+        Page<Comment> comments = commentRepository.findAllByPost(post, pageable);
         Page<CommentDto> commentDtos = CommentDto.toDtoList(comments);
         return commentDtos;
     }

@@ -26,17 +26,17 @@ public class CommentController {
 
     @ApiOperation(value = "댓글 작성")
     @PostMapping("/{postId}/comments")
-    public Response<CommentDto> createComment(@PathVariable Integer postId, @RequestBody CommentCreateRequest commentCreateRequest, Authentication authentication) {
+    public ResponseEntity<Response<CommentDto>> createComment(@PathVariable Integer postId, @RequestBody CommentCreateRequest commentCreateRequest, Authentication authentication) {
         CommentDto commentDto = commentService.createComment(postId, authentication.getName(), commentCreateRequest);
-        return Response.success(commentDto);
+        return ResponseEntity.ok().body(Response.success(commentDto));
     }
 
     @ApiOperation(value = "댓글 목록",notes = "해당 post_id의 댓글 목록 조회")
     @GetMapping("{postId}/comments")
-    public Response<Page<CommentDto>> getPostList(@PageableDefault(size = 10)
-                                                  @SortDefault(sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
-        Page<CommentDto> commentDtos = commentService.getAllItems(pageable);
-        return Response.success(commentDtos);
+    public ResponseEntity<Response<Page<CommentDto>>> getPostList(@PathVariable Integer postId,@PageableDefault(size = 10)
+                                                  @SortDefault(sort = "registeredAt", direction = Sort.Direction.DESC) Pageable pageable) {
+        Page<CommentDto> commentDtos = commentService.getAllItems(postId,pageable);
+        return ResponseEntity.ok().body(Response.success(commentDtos));
     }
 
     @ApiOperation(value = "댓글 수정")
@@ -48,10 +48,10 @@ public class CommentController {
 
     @ApiOperation(value = "댓글 삭제",notes = "soft delete")
     @DeleteMapping("/{postId}/comments/{commentId}")
-    public Response<CommentResponse> deleteComment(@PathVariable Integer postId, @PathVariable Integer commentId, Authentication authentication) {
+    public ResponseEntity<Response<CommentResponse>> deleteComment(@PathVariable Integer postId, @PathVariable Integer commentId, Authentication authentication) {
 
         commentService.deleteComment(postId, commentId, authentication.getName());
 
-        return Response.success(new CommentResponse("댓글 삭제 완료", commentId));
+        return ResponseEntity.ok().body(Response.success(new CommentResponse("댓글 삭제 완료", commentId)));
     }
 }

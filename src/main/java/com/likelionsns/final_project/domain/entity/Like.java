@@ -12,10 +12,10 @@ import javax.persistence.*;
 @Getter
 @Entity
 @Table(name = "like_count")
-@Where(clause = "deleted_at IS NULL")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Where(clause = "deleted_at IS NULL")
 @SQLDelete(sql = "UPDATE like_count SET deleted_at = CURRENT_TIMESTAMP WHERE like_id = ?")
-public class Like extends BaseEntity{
+public class Like extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "like_id")

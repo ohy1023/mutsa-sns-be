@@ -19,8 +19,8 @@ import static com.likelionsns.final_project.domain.enums.UserRole.*;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Where(clause = "deleted_at IS NULL")
-@SQLDelete(sql = "UPDATE user SET deleted_at = CURRENT_TIMESTAMP WHERE user_id = ?" )
-public class User extends BaseEntity{
+@SQLDelete(sql = "UPDATE user SET deleted_at = CURRENT_TIMESTAMP WHERE user_id = ?")
+public class User extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
@@ -44,7 +44,7 @@ public class User extends BaseEntity{
     }
 
     @Builder
-    public User(Integer id, String userName, String password,UserRole userRole) {
+    public User(Integer id, String userName, String password, UserRole userRole) {
         this.id = id;
         this.userName = userName;
         this.password = password;

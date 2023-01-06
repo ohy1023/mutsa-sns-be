@@ -5,9 +5,7 @@ import com.likelionsns.final_project.domain.entity.Post;
 import com.likelionsns.final_project.domain.entity.User;
 import com.likelionsns.final_project.domain.request.PostCreateRequest;
 import com.likelionsns.final_project.exception.SnsAppException;
-import com.likelionsns.final_project.repository.LikeRepository;
-import com.likelionsns.final_project.repository.PostRepository;
-import com.likelionsns.final_project.repository.UserRepository;
+import com.likelionsns.final_project.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -25,6 +23,8 @@ public class PostService {
     private final UserRepository userRepository;
     private final PostRepository postRepository;
     private final LikeRepository likeRepository;
+    private final CommentRepository commentRepository;
+    private final AlarmRepository alarmRepository;
 
     @Transactional
     public PostDto createPost(PostCreateRequest postCreateRequest, String userName) {
@@ -72,10 +72,9 @@ public class PostService {
         if (isMismatch(userName, post)) {
             throw new SnsAppException(INVALID_PERMISSION, INVALID_PERMISSION.getMessage());
         }
-        deletePostAndLike(post);
+        deletePostAndLikeAndComment(post);
         return true;
     }
-
 
 
     public Page<PostDto> getMyPost(Pageable pageable, String userName) {
@@ -83,15 +82,18 @@ public class PostService {
         User user = userRepository.findByUserName(userName)
                 .orElseThrow(() -> new SnsAppException(USERNAME_NOT_FOUND, USERNAME_NOT_FOUND.getMessage()));
 
-        Page<Post> posts = postRepository.findAllByUserId(pageable,user.getId());
+        Page<Post> posts = postRepository.findAllByUserId(pageable, user.getId());
         Page<PostDto> myPosts = PostDto.toDtoList(posts);
         return myPosts;
     }
+
     private static boolean isMismatch(String userName, Post post) {
         return !Objects.equals(post.getUser().getUserName(), userName);
     }
-    private void deletePostAndLike(Post post) {
-        likeRepository.deleteAll(likeRepository.findAllByPost(post));
+
+    private void deletePostAndLikeAndComment(Post post) {
+        commentRepository.deleteAllByPost(post);
+        likeRepository.deleteAllByPost(post);
         postRepository.delete(post);
     }
 

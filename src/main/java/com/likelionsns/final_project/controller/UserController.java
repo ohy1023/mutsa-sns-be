@@ -9,6 +9,7 @@ import com.likelionsns.final_project.service.UserService;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,16 +24,16 @@ public class UserController {
 
     @ApiOperation(value = "회원가입")
     @PostMapping("/join")
-    public Response<UserJoinResponse> joinUser(@RequestBody UserJoinRequest userJoinRequest) {
+    public ResponseEntity<Response<UserJoinResponse>> joinUser(@RequestBody UserJoinRequest userJoinRequest) {
         UserJoinResponse userJoinResponse = userService.join(userJoinRequest);
-        return Response.success(userJoinResponse);
+        return ResponseEntity.ok().body(Response.success(userJoinResponse));
     }
 
     @ApiOperation(value = "로그인", notes = "jwt 반환")
     @PostMapping("/login")
-    public Response<UserLoginResponse> login(@RequestBody UserLoginRequest userLoginRequest) {
+    public ResponseEntity<Response<UserLoginResponse>> login(@RequestBody UserLoginRequest userLoginRequest) {
         String token = userService.login(userLoginRequest.getUserName(), userLoginRequest.getPassword());
-        return Response.success(new UserLoginResponse(token));
+        return ResponseEntity.ok().body(Response.success(new UserLoginResponse(token)));
     }
 
 }
