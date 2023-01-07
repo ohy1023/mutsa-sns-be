@@ -198,6 +198,7 @@ class PostControllerTest {
 
 
     }
+
     @Test
     @DisplayName("포스트 수정 실패(2) : 작성자 불일치")
     @WithMockUser
@@ -224,6 +225,7 @@ class PostControllerTest {
 
 
     }
+
     @Test
     @DisplayName("포스트 수정 실패(3) : 데이터베이스 에러")
     @WithMockUser
@@ -241,6 +243,71 @@ class PostControllerTest {
         mockMvc.perform(put("/api/v1/posts/1")
                         .with(csrf())
                         .content(objectMapper.writeValueAsBytes(updateRequest))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isInternalServerError())
+                .andExpect(jsonPath("$.resultCode").value("ERROR"))
+                .andExpect(jsonPath("$.result.errorCode").value("DATABASE_ERROR"))
+                .andExpect(jsonPath("$.result.message").value(DATABASE_ERROR.getMessage()))
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("포스트 삭제 성공")
+    @WithMockUser
+    void deletePost() throws Exception {
+        mockMvc.perform(delete("/api/v1/posts/1")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.resultCode").value("SUCCESS"))
+                .andExpect(jsonPath("$.result.message").exists())
+                .andExpect(jsonPath("$.result.postId").exists())
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("포스트 삭제 실패(1) : 인증 실패")
+    @WithAnonymousUser
+    void deletePostFail01() throws Exception {
+
+        // when & then
+        mockMvc.perform(delete("/api/v1/posts/1")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isUnauthorized())
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("포스트 삭제 실패(2) : 작성자 불일치")
+    @WithMockUser
+    void deletePostFail02() throws Exception {
+        // given
+        given(postService.delete(any(), any()))
+                .willThrow(new SnsAppException(INVALID_PERMISSION, INVALID_PERMISSION.getMessage()));
+
+        // when & then
+        mockMvc.perform(delete("/api/v1/posts/1")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.resultCode").value("ERROR"))
+                .andExpect(jsonPath("$.result.errorCode").value("INVALID_PERMISSION"))
+                .andExpect(jsonPath("$.result.message").value(INVALID_PERMISSION.getMessage()))
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("포스트 삭제 실패(3) : 데이터베이스 에러")
+    @WithMockUser
+    void deletePostFail03() throws Exception {
+        // given
+        given(postService.delete(any(), any()))
+                .willThrow(new SnsAppException(DATABASE_ERROR, DATABASE_ERROR.getMessage()));
+
+        // when & then
+        mockMvc.perform(delete("/api/v1/posts/1")
+                        .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isInternalServerError())
                 .andExpect(jsonPath("$.resultCode").value("ERROR"))
@@ -269,6 +336,7 @@ class PostControllerTest {
         assertThat(3).isEqualTo(pageable.getPageSize());
         assertThat(Sort.by("createdAt", "desc")).isEqualTo(pageable.withSort(Sort.by("createdAt", "desc")).getSort());
     }
+
 
     @Test
     @DisplayName("마이 피드 조회 성공")

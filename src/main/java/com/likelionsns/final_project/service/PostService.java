@@ -72,7 +72,9 @@ public class PostService {
         if (isMismatch(userName, post)) {
             throw new SnsAppException(INVALID_PERMISSION, INVALID_PERMISSION.getMessage());
         }
-        deletePostAndLikeAndComment(post);
+        commentRepository.deleteAllByPost(post);
+        likeRepository.deleteAllByPost(post);
+        postRepository.delete(post);
         return true;
     }
 
@@ -90,12 +92,4 @@ public class PostService {
     private static boolean isMismatch(String userName, Post post) {
         return !Objects.equals(post.getUser().getUserName(), userName);
     }
-
-    private void deletePostAndLikeAndComment(Post post) {
-        commentRepository.deleteAllByPost(post);
-        likeRepository.deleteAllByPost(post);
-        postRepository.delete(post);
-    }
-
-
 }

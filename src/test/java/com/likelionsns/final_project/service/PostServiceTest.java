@@ -10,8 +10,11 @@ import com.likelionsns.final_project.domain.response.CommentUpdateResponse;
 import com.likelionsns.final_project.exception.SnsAppException;
 import com.likelionsns.final_project.fixture.PostInfoFixture;
 import com.likelionsns.final_project.fixture.UserInfoFixture;
+import com.likelionsns.final_project.repository.CommentRepository;
+import com.likelionsns.final_project.repository.LikeRepository;
 import com.likelionsns.final_project.repository.PostRepository;
 import com.likelionsns.final_project.repository.UserRepository;
+import org.assertj.core.api.AbstractThrowableAssert;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,12 +22,14 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static com.likelionsns.final_project.exception.ErrorCode.*;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.*;
+import static org.mockito.Mockito.doNothing;
 
 
 @ExtendWith(MockitoExtension.class)
@@ -39,9 +44,15 @@ class PostServiceTest {
     @Mock
     private PostRepository postRepository;
 
+    @Mock
+    private LikeRepository likeRepository;
+
+    @Mock
+    private CommentRepository commentRepository;
+
     User user = UserInfoFixture.get("user1", "password1");
     User user2 = UserInfoFixture.get("user2", "password2");
-    Post post = PostInfoFixture.get(user.getUserName(),user.getPassword());
+    Post post = PostInfoFixture.get(user.getUserName(), user.getPassword());
 
     @Test
     @DisplayName("포스트 등록 성공")
@@ -122,7 +133,7 @@ class PostServiceTest {
     @DisplayName("포스트 수정 성공")
     void updatePost() {
         // given
-        PostUpdateRequest updateRequest =PostUpdateRequest.builder()
+        PostUpdateRequest updateRequest = PostUpdateRequest.builder()
                 .title("updated title")
                 .body("updated body")
                 .build();
@@ -149,7 +160,7 @@ class PostServiceTest {
     @DisplayName("포스트 수정 실패(1) : 포스트 존재하지 않음")
     void updatePostFail01() {
         // given
-        PostUpdateRequest updateRequest =PostUpdateRequest.builder()
+        PostUpdateRequest updateRequest = PostUpdateRequest.builder()
                 .title("updated title")
                 .body("updated body")
                 .build();
@@ -161,7 +172,7 @@ class PostServiceTest {
                 .willReturn(Optional.of(user));
 
         // when & then
-        assertThatThrownBy(() -> postService.update(post.getId(), post.getUser().getUserName(),updateRequest.getTitle(),updateRequest.getBody()))
+        assertThatThrownBy(() -> postService.update(post.getId(), post.getUser().getUserName(), updateRequest.getTitle(), updateRequest.getBody()))
                 .isExactlyInstanceOf(SnsAppException.class)
                 .hasMessage(POST_NOT_FOUND.getMessage());
     }
@@ -170,7 +181,7 @@ class PostServiceTest {
     @DisplayName("포스트 수정 실패 : 작성자!= 유저 ")
     void updatePostFail02() {
         // given
-        PostUpdateRequest updateRequest =PostUpdateRequest.builder()
+        PostUpdateRequest updateRequest = PostUpdateRequest.builder()
                 .title("updated title")
                 .body("updated body")
                 .build();
@@ -182,7 +193,7 @@ class PostServiceTest {
                 .willReturn(Optional.of(user));
 
         // when & then
-        assertThatThrownBy(() -> postService.update(post.getId(), user2.getUserName(),updateRequest.getTitle(),updateRequest.getBody()))
+        assertThatThrownBy(() -> postService.update(post.getId(), user2.getUserName(), updateRequest.getTitle(), updateRequest.getBody()))
                 .isExactlyInstanceOf(SnsAppException.class)
                 .hasMessage(INVALID_PERMISSION.getMessage());
     }
@@ -191,7 +202,7 @@ class PostServiceTest {
     @DisplayName("포스트 수정 실패 : 유저 존재하지 않음")
     void updatePostFail03() {
         // given
-        PostUpdateRequest updateRequest =PostUpdateRequest.builder()
+        PostUpdateRequest updateRequest = PostUpdateRequest.builder()
                 .title("updated title")
                 .body("updated body")
                 .build();
@@ -200,8 +211,58 @@ class PostServiceTest {
                 .willReturn(Optional.empty());
 
         // when & then
-        assertThatThrownBy(() -> postService.update(post.getId(), post.getUser().getUserName(),updateRequest.getTitle(),updateRequest.getBody()))
+        assertThatThrownBy(() -> postService.update(post.getId(), post.getUser().getUserName(), updateRequest.getTitle(), updateRequest.getBody()))
                 .isExactlyInstanceOf(SnsAppException.class)
                 .hasMessage(USERNAME_NOT_FOUND.getMessage());
+    }
+
+    @Test
+    @DisplayName("포스트 삭제 성공")
+    void deletePost() {
+
+        given(userRepository.findByUserName(user.getUserName()))
+                .willReturn(Optional.of(user));
+
+        given(postRepository.findById(post.getId()))
+                .willReturn(Optional.of(post));
+
+//        willDoNothing().given(commentRepository).deleteAllByPost(post);
+//        willDoNothing().given(likeRepository).deleteAllByPost(post);
+//        willDoNothing().given(postRepository).delete(post);
+
+        boolean delete = postService.delete(user.getUserName(), post.getId());
+
+        assertThat(delete).isTrue();
+    }
+
+    @Test
+    @DisplayName("포스트 삭제 실패 : 유저 존재하지 않음")
+    void deletePostFail01() {
+        // given
+        given(postRepository.findById(post.getId()))
+                .willReturn(Optional.of(post));
+
+        given(userRepository.findByUserName(user.getUserName()))
+                .willReturn(Optional.empty());
+
+        // when & then
+        assertThatThrownBy(() -> postService.delete(user.getUserName(), post.getId()))
+                .isExactlyInstanceOf(SnsAppException.class)
+                .hasMessage(USERNAME_NOT_FOUND.getMessage());
+
+    }
+
+    @Test
+    @DisplayName("포스트 삭제 실패 : 포스트 존재하지 않음")
+    void deletePostFail02() {
+        // given
+        given(postRepository.findById(post.getId()))
+                .willReturn(Optional.empty());
+
+        // when & then
+        assertThatThrownBy(() -> postService.delete(user.getUserName(), post.getId()))
+                .isExactlyInstanceOf(SnsAppException.class)
+                .hasMessage(POST_NOT_FOUND.getMessage());
+
     }
 }
