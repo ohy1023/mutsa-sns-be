@@ -17,13 +17,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/alarms")
+@RequestMapping("api/v1/users")
 public class AlarmController {
 
     private final AlarmService alarmService;
 
     @ApiOperation("알림 목록 조회")
-    @GetMapping
+    @GetMapping("/alarm")
     public ResponseEntity<Response<Page<AlarmDto>>> getAlarms(@PageableDefault(size = 20) @SortDefault(sort = "registeredAt", direction = Sort.Direction.DESC) Pageable pageable) {
         Page<AlarmDto> alarmDtos = alarmService.getAlarms(pageable);
         return ResponseEntity.ok().body(Response.success(alarmDtos));
