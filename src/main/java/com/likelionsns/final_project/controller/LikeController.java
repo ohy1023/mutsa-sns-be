@@ -22,6 +22,13 @@ public class LikeController {
         return ResponseEntity.ok().body(Response.success("좋아요를 눌렀습니다."));
     }
 
+    @ApiOperation(value = "좋아요 취소")
+    @DeleteMapping("/{postId}/likes")
+    public ResponseEntity<Response<String>> deleteCount(@PathVariable Integer postId, Authentication authentication) {
+        likeService.deleteCount(postId, authentication.getName());
+        return ResponseEntity.ok().body(Response.success("좋아요를 취소했습니다."));
+    }
+
     @ApiOperation(value = "좋아요 개수 조회")
     @GetMapping("/{postId}/likes")
     public ResponseEntity<Response<Long>> viewCount(@PathVariable Integer postId) {

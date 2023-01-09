@@ -52,6 +52,17 @@ public class LikeService {
         return true;
     }
 
+    public boolean deleteCount(Integer postId, String userName) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new SnsAppException(POST_NOT_FOUND, POST_NOT_FOUND.getMessage()));
+        User user = userRepository.findByUserName(userName)
+                .orElseThrow(() -> new SnsAppException(USERNAME_NOT_FOUND, USERNAME_NOT_FOUND.getMessage()));
+        Like like = likeRepository.findByPostAndUser(post, user)
+                .orElseThrow(() -> new SnsAppException(LIKE_NOT_FOUND, LIKE_NOT_FOUND.getMessage()));
+        likeRepository.delete(like);
+        return true;
+    }
+
     public Long viewCount(Integer postId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new SnsAppException(POST_NOT_FOUND, POST_NOT_FOUND.getMessage()));
