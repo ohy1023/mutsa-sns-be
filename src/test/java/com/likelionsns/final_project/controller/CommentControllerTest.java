@@ -29,8 +29,7 @@ import static com.likelionsns.final_project.exception.ErrorCode.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -51,7 +50,7 @@ class CommentControllerTest {
     @Test
     @DisplayName("댓글 작성 성공")
     @WithMockUser
-    void createComment() throws Exception{
+    void createComment() throws Exception {
         // given
         CommentCreateRequest request = new CommentCreateRequest("comment");
 
@@ -77,7 +76,7 @@ class CommentControllerTest {
     @Test
     @DisplayName("댓글 작성 실패(1) - 로그인 하지 않은 경우")
     @WithAnonymousUser
-    void createCommentFail01() throws Exception{
+    void createCommentFail01() throws Exception {
         // given
         CommentCreateRequest request = new CommentCreateRequest("comment");
 
@@ -100,7 +99,7 @@ class CommentControllerTest {
     @Test
     @DisplayName("댓글 작성 성공(2) - 게시물이 존재하지 않는 경우")
     @WithMockUser
-    void createCommentFail02() throws Exception{
+    void createCommentFail02() throws Exception {
         // given
         CommentCreateRequest request = new CommentCreateRequest("comment");
 
@@ -123,7 +122,7 @@ class CommentControllerTest {
     @Test
     @DisplayName("댓글 수정 성공")
     @WithMockUser
-    void updateComment() throws Exception{
+    void updateComment() throws Exception {
         // given
         CommentUpdateRequest updateRequest = new CommentUpdateRequest("update comment");
 
@@ -156,7 +155,7 @@ class CommentControllerTest {
     @Test
     @DisplayName("댓글 수정 실패(1) : 인증 실패")
     @WithAnonymousUser
-    void updateCommentFail01() throws Exception{
+    void updateCommentFail01() throws Exception {
         // given
         CommentUpdateRequest updateRequest = new CommentUpdateRequest("update comment");
 
@@ -175,7 +174,7 @@ class CommentControllerTest {
     @Test
     @DisplayName("댓글 수정 실패(2) : 작성자 불일치")
     @WithMockUser
-    void updateCommentFail02() throws Exception{
+    void updateCommentFail02() throws Exception {
         // given
         CommentUpdateRequest updateRequest = new CommentUpdateRequest("update comment");
 
@@ -198,7 +197,7 @@ class CommentControllerTest {
     @Test
     @DisplayName("댓글 수정 실패(3) : 데이터베이스 에러")
     @WithMockUser
-    void updateCommentFail03() throws Exception{
+    void updateCommentFail03() throws Exception {
         // given
         CommentUpdateRequest updateRequest = new CommentUpdateRequest("update comment");
 
@@ -216,4 +215,91 @@ class CommentControllerTest {
                 .andExpect(jsonPath("$.result.message").value(DATABASE_ERROR.getMessage()))
                 .andDo(print());
     }
+
+    @Test
+    @DisplayName("댓글 삭제 성공")
+    @WithMockUser
+    void deleteComment() throws Exception {
+        // when & then
+        mockMvc.perform(delete("/api/v1/posts/1/comments/1")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.resultCode").value("SUCCESS"))
+                .andExpect(jsonPath("$.result.message").value("댓글 삭제 완료"))
+                .andExpect(jsonPath("$.result.postId").value(1))
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("댓글 삭제 실패(1) : 인증 실패")
+    @WithAnonymousUser
+    void deleteCommentFail01() throws Exception {
+        // when & then
+        mockMvc.perform(delete("/api/v1/posts/1/comments/1")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isUnauthorized())
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("댓글 삭제 실패(2) : Post없는 경우")
+    @WithMockUser
+    void deleteCommentFail02() throws Exception {
+        // given
+        given(commentService.deleteComment(any(), any(), any()))
+                .willThrow(new SnsAppException(POST_NOT_FOUND, POST_NOT_FOUND.getMessage()));
+
+
+        // when & then
+        mockMvc.perform(delete("/api/v1/posts/1/comments/1")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.resultCode").value("ERROR"))
+                .andExpect(jsonPath("$.result.errorCode").value("POST_NOT_FOUND"))
+                .andExpect(jsonPath("$.result.message").value(POST_NOT_FOUND.getMessage()))
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("댓글 삭제 실패(3) : 작성자 불일치")
+    @WithMockUser
+    void deleteCommentFail03() throws Exception {
+        // given
+        given(commentService.deleteComment(any(), any(), any()))
+                .willThrow(new SnsAppException(INVALID_PERMISSION, INVALID_PERMISSION.getMessage()));
+
+        // when & then
+        mockMvc.perform(delete("/api/v1/posts/1/comments/1")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.resultCode").value("ERROR"))
+                .andExpect(jsonPath("$.result.errorCode").value("INVALID_PERMISSION"))
+                .andExpect(jsonPath("$.result.message").value(INVALID_PERMISSION.getMessage()))
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("댓글 삭제 실패(4) : 데이터베이스 에러")
+    @WithMockUser
+    void deleteCommentFail04() throws Exception {
+        // given
+        given(commentService.deleteComment(any(), any(), any()))
+                .willThrow(new SnsAppException(DATABASE_ERROR, DATABASE_ERROR.getMessage()));
+
+        // when & then
+        mockMvc.perform(delete("/api/v1/posts/1/comments/1")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isInternalServerError())
+                .andExpect(jsonPath("$.resultCode").value("ERROR"))
+                .andExpect(jsonPath("$.result.errorCode").value("DATABASE_ERROR"))
+                .andExpect(jsonPath("$.result.message").value(DATABASE_ERROR.getMessage()))
+                .andDo(print());
+    }
+
+
 }

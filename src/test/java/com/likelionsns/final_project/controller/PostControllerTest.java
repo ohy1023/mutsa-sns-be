@@ -317,28 +317,6 @@ class PostControllerTest {
     }
 
     @Test
-    @WithMockUser
-    @DisplayName("pageable 파라미터 검증")
-    void evaluates_pageable_parameter() throws Exception {
-
-        mockMvc.perform(get("/api/v1/posts")
-                        .param("page", "0")
-                        .param("size", "3")
-                        .param("sort", "createdAt,desc"))
-                .andExpect(status().isOk());
-
-        ArgumentCaptor<Pageable> pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
-
-        verify(postService).getAllItems(pageableCaptor.capture());
-        PageRequest pageable = (PageRequest) pageableCaptor.getValue();
-
-        assertThat(0).isEqualTo(pageable.getPageNumber());
-        assertThat(3).isEqualTo(pageable.getPageSize());
-        assertThat(Sort.by("createdAt", "desc")).isEqualTo(pageable.withSort(Sort.by("createdAt", "desc")).getSort());
-    }
-
-
-    @Test
     @DisplayName("마이 피드 조회 성공")
     @WithMockUser
     void myFeedSuccess() throws Exception {

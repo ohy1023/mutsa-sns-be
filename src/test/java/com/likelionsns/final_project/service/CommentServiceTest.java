@@ -41,7 +41,7 @@ class CommentServiceTest {
 
     User user = UserInfoFixture.get("user1", "password1");
     User user2 = UserInfoFixture.get("user2", "password2");
-    Post post = PostInfoFixture.get(user.getUserName(),user.getPassword());
+    Post post = PostInfoFixture.get(user.getUserName(), user.getPassword());
     Comment comment = CommentInfoFixture.get(user.getUserName(), user.getPassword());
 
     @Test
@@ -78,7 +78,6 @@ class CommentServiceTest {
 
         given(postRepository.findById(post.getId()))
                 .willReturn(Optional.empty());
-
 
 
         // when & then
@@ -127,5 +126,96 @@ class CommentServiceTest {
         assertThatThrownBy(() -> commentService.updateComment(post.getId(), comment.getId(), updateRequest, user.getUserName()))
                 .isExactlyInstanceOf(SnsAppException.class)
                 .hasMessage(USERNAME_NOT_FOUND.getMessage());
+    }
+
+    @Test
+    @DisplayName("댓글 삭제 성공")
+    void deleteComment() {
+        // given
+        given(postRepository.findById(post.getId()))
+                .willReturn(Optional.of(post));
+
+        given(commentRepository.findById(comment.getId()))
+                .willReturn(Optional.of(comment));
+
+        given(userRepository.findByUserName(user.getUserName()))
+                .willReturn(Optional.of(user));
+
+        // when
+        boolean b = commentService.deleteComment(post.getId(), comment.getId(), user.getUserName());
+
+        // then
+        assertThat(b).isTrue();
+
+    }
+
+    @Test
+    @DisplayName("댓글 삭제 실패 : 포스트 존재하지 않음")
+    void deleteCommentFail01() {
+        // given
+        given(postRepository.findById(post.getId()))
+                .willReturn(Optional.empty());
+        // when & then
+        assertThatThrownBy(() -> commentService.deleteComment(post.getId(), comment.getId(), user.getUserName()))
+                .isExactlyInstanceOf(SnsAppException.class)
+                .hasMessage(POST_NOT_FOUND.getMessage());
+
+    }
+
+    @Test
+    @DisplayName("댓글 삭제 실패 : 댓글 존재하지 않음")
+    void deleteCommentFail02() {
+        // given
+        given(postRepository.findById(post.getId()))
+                .willReturn(Optional.of(post));
+
+        given(commentRepository.findById(comment.getId()))
+                .willReturn(Optional.empty());
+
+        // when & then
+        assertThatThrownBy(() -> commentService.deleteComment(post.getId(), comment.getId(), user.getUserName()))
+                .isExactlyInstanceOf(SnsAppException.class)
+                .hasMessage(COMMENT_NOT_FOUND.getMessage());
+
+    }
+
+    @Test
+    @DisplayName("댓글 삭제 실패 : 유저 존재하지 않음")
+    void deleteCommentFail03() {
+        // given
+        given(postRepository.findById(post.getId()))
+                .willReturn(Optional.of(post));
+
+        given(commentRepository.findById(comment.getId()))
+                .willReturn(Optional.of(comment));
+
+        given(userRepository.findByUserName(user.getUserName()))
+                .willReturn(Optional.empty());
+
+        // when & then
+        assertThatThrownBy(() -> commentService.deleteComment(post.getId(), comment.getId(), user.getUserName()))
+                .isExactlyInstanceOf(SnsAppException.class)
+                .hasMessage(USERNAME_NOT_FOUND.getMessage());
+
+    }
+
+    @Test
+    @DisplayName("댓글 삭제 실패 : 작성자!=유저")
+    void deleteCommentFail04() {
+        // given
+        given(postRepository.findById(post.getId()))
+                .willReturn(Optional.of(post));
+
+        given(commentRepository.findById(comment.getId()))
+                .willReturn(Optional.of(comment));
+
+        given(userRepository.findByUserName(user2.getUserName()))
+                .willReturn(Optional.of(user2));
+
+        // when & then
+        assertThatThrownBy(() -> commentService.deleteComment(post.getId(), comment.getId(), user2.getUserName()))
+                .isExactlyInstanceOf(SnsAppException.class)
+                .hasMessage(INVALID_PERMISSION.getMessage());
+
     }
 }
