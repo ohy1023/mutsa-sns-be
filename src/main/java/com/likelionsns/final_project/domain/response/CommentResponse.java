@@ -11,6 +11,6 @@ import lombok.NoArgsConstructor;
 public class CommentResponse {
 
     private String message;
-    private Integer postId;
+    private Integer commentId;
 
 }
