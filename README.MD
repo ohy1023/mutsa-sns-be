@@ -43,8 +43,6 @@
 |          | DELETE | /posts/{postId}/likes               | 좋아요 취소            | 권한 필요                     |
 | 알림       | GET    | /alarm                              | 알림 조회             | 페이징(최신순 정렬), 권한 필요        |
 
----
-
 ### ✔ 체크리스트
 - [x] Gitlab CI & Crontab CD
 - [x] Swagger
@@ -60,7 +58,7 @@
 - [ ] Admin기능
 - [ ] UI구현
 
-### 2주차 미션 요약
+### ✔ 2주차 미션 요약
 
 **[접근 방법]**
 
