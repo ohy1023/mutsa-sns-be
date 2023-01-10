@@ -227,7 +227,7 @@ class CommentControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.resultCode").value("SUCCESS"))
                 .andExpect(jsonPath("$.result.message").value("댓글 삭제 완료"))
-                .andExpect(jsonPath("$.result.postId").value(1))
+                .andExpect(jsonPath("$.result.commentId").value(1))
                 .andDo(print());
     }
 
