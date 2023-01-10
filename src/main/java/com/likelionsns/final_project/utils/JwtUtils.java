@@ -20,8 +20,8 @@ public class JwtUtils {
     }
 
     public static boolean isExpired(String token, String key) {
-        Date expiredDate = extractClaims(token, key).getExpiration(); // expire timestamp를 return함
-        return expiredDate.before(new Date()); // 현재보다 전인지 check를 합니다.
+        Date expiredDate = extractClaims(token, key).getExpiration();
+        return expiredDate.before(new Date());
     }
 
     private static Claims extractClaims(String token, String key) {

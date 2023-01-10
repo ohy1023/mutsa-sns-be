@@ -23,15 +23,7 @@ public class AlarmService {
         User user = userRepository.findByUserName(userName)
                 .orElseThrow(() -> new SnsAppException(USERNAME_NOT_FOUND, USERNAME_NOT_FOUND.getMessage()));
         Page<Alarm> alarms = alarmRepository.findAllByUser(user.getId(),pageable);
-        Page<AlarmDto> alarmDtos = alarms
-                .map(alarm -> AlarmDto.builder()
-                .id(alarm.getId())
-                .alarmType(alarm.getAlarmType())
-                .fromUserId(alarm.getFromUserId())
-                .targetId(alarm.getTargetId())
-                .text(alarm.getText())
-                .createdAt(alarm.getRegisteredAt())
-                .build());
+        Page<AlarmDto> alarmDtos = AlarmDto.toDtoList(alarms);
         return alarmDtos;
     }
 }

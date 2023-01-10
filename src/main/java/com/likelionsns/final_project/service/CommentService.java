@@ -18,6 +18,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.Objects;
 
 import static com.likelionsns.final_project.domain.enums.AlarmType.*;
@@ -32,6 +33,7 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final AlarmRepository alarmRepository;
 
+    @Transactional
     public CommentDto createComment(Integer postId, String userName, CommentCreateRequest commentCreateRequest) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new SnsAppException(POST_NOT_FOUND, POST_NOT_FOUND.getMessage()));
@@ -60,7 +62,7 @@ public class CommentService {
         Page<CommentDto> commentDtos = CommentDto.toDtoList(comments);
         return commentDtos;
     }
-
+    @Transactional
     public CommentUpdateResponse updateComment(Integer postId, Integer commentId, CommentUpdateRequest commentUpdateRequest, String userName) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new SnsAppException(POST_NOT_FOUND, POST_NOT_FOUND.getMessage()));
@@ -79,6 +81,7 @@ public class CommentService {
         return CommentUpdateResponse.toResponse(updateComment);
     }
 
+    @Transactional
     public boolean deleteComment(Integer postId, Integer commentId, String userName) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new SnsAppException(POST_NOT_FOUND, POST_NOT_FOUND.getMessage()));

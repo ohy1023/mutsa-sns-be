@@ -46,6 +46,7 @@ public class PostService {
         return postDtos;
     }
 
+    @Transactional
     public PostDto update(Integer postId, String userName, String title, String body) {
         User user = userRepository.findByUserName(userName)
                 .orElseThrow(() -> new SnsAppException(USERNAME_NOT_FOUND, USERNAME_NOT_FOUND.getMessage()));
@@ -63,6 +64,7 @@ public class PostService {
         return PostDto.toPostDto(updatedPost);
     }
 
+    @Transactional
     public boolean delete(String userName, Integer postId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new SnsAppException(POST_NOT_FOUND, POST_NOT_FOUND.getMessage()));

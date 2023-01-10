@@ -1,5 +1,6 @@
 package com.likelionsns.final_project.domain.response;
 
+import com.likelionsns.final_project.domain.entity.User;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,5 +17,12 @@ public class UserJoinResponse {
     public UserJoinResponse(Integer userId, String userName) {
         this.userId = userId;
         this.userName = userName;
+    }
+
+    public static UserJoinResponse toResponse(User user) {
+        return UserJoinResponse.builder()
+                .userId(user.getId())
+                .userName(user.getUserName())
+                .build();
     }
 }

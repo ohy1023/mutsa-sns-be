@@ -13,6 +13,7 @@ import com.likelionsns.final_project.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.List;
 
 import static com.likelionsns.final_project.domain.enums.AlarmType.*;
@@ -26,6 +27,7 @@ public class LikeService {
     private final LikeRepository likeRepository;
     private final AlarmRepository alarmRepository;
 
+    @Transactional
     public boolean addCount(Integer postId, String userName) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new SnsAppException(POST_NOT_FOUND, POST_NOT_FOUND.getMessage()));
@@ -52,6 +54,7 @@ public class LikeService {
         return true;
     }
 
+    @Transactional
     public boolean deleteCount(Integer postId, String userName) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new SnsAppException(POST_NOT_FOUND, POST_NOT_FOUND.getMessage()));

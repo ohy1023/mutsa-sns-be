@@ -1,0 +1,26 @@
+server:
+  servlet:
+    encoding:
+      force-response: true
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/test
+    username: root
+    password: 1q2w3e4r
+
+logging:
+  level:
+    org.hibernate.SQL: debug    # Logger
+    org.hibernate.type: trace   # Show Query Parameter
+
+jwt:
+  secret: hello

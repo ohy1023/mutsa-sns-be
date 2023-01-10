@@ -24,44 +24,31 @@ public class UserService {
     @Value("${jwt.secret}")
     private String secretKey;
 
-    private final long expiredTimeMs = 1000 * 60 * 60L;
-
-
     public UserJoinResponse join(UserJoinRequest userJoinRequest) {
         userRepository.findByUserName(userJoinRequest.getUserName())
                 .ifPresent((user -> {
                     throw new SnsAppException(DUPLICATED_USER_NAME, DUPLICATED_USER_NAME.getMessage());
                 }));
         User savedUser = userRepository.save(userJoinRequest.toEntity(encoder.encode(userJoinRequest.getPassword())));
-        return UserJoinResponse.builder()
-                .userId(savedUser.getId())
-                .userName(savedUser.getUserName())
-                .build();
+        return UserJoinResponse.toResponse(savedUser);
     }
 
     public String login(String userName, String password) {
 
-        //userName 있는지 여부 확인
-        //없으면 NOT_FOUND 에러 발생
         User user = userRepository.findByUserName(userName)
                 .orElseThrow(() -> new SnsAppException(USERNAME_NOT_FOUND, USERNAME_NOT_FOUND.getMessage()));
 
-        //password 일치 하는지 여부 확인
         if (isWrongPassword(password, user))
             throw new SnsAppException(INVALID_PASSWORD, INVALID_PASSWORD.getMessage());
 
+        long expiredTimeMs = 1000 * 60 * 60L;
         return JwtUtils.createToken(userName, secretKey, expiredTimeMs);
     }
 
     public UserDto getUserByUserName(String userName) {
         User user = userRepository.findByUserName(userName)
                 .orElseThrow(() -> new SnsAppException(USERNAME_NOT_FOUND, USERNAME_NOT_FOUND.getMessage()));
-        return UserDto.builder()
-                .id(user.getId())
-                .userName(user.getUserName())
-                .password(user.getPassword())
-                .userRole(user.getUserRole())
-                .build();
+        return UserDto.toUserDto(user);
     }
 
     private boolean isWrongPassword(String password, User user) {
