@@ -30,12 +30,12 @@
 | 회원       | POST   | /users/join                         | 회원가입              | 권한 미필요              |
 |          | POST   | /users/login                        | 로그인               | 권한 미필요              |
 | 게시글      | GET    | /posts                              | 전체 게시글 조회         | 페이징(최신순 정렬), 권한 미필요 |
+|          | GET    | /posts/my                           | 자신이 작성한 게시글 목록 조회 | 페이징(최신순 정렬), 권한 필요  |
 |          | GET    | /posts/{postId}                     | 게시글 상세 조회         | 권한 미필요              |
 |          | POST   | /posts                              | 게시글 등록            | 권한 필요               |
 |          | PUT    | /posts/{postId}                     | 게시글 수정            | 권한 필요               |
 |          | DELETE | /posts/{postId}                     | 게시글 삭제            | 권한 필요               |
-|          | GET    | /posts/my                           | 자신이 작성한 게시글 목록 조회 | 권한 필요               |
-| 댓글       | POST   | /posts/{postId}/comments            | 해당 게시글의 전체 댓글 조회  | 페이징(최신순 정렬), 권한 미필요 |
+| 댓글       | GET    | /posts/{postId}/comments            | 해당 게시글의 전체 댓글 조회  | 페이징(최신순 정렬), 권한 미필요 |
 |          | POST   | /posts{postId}/comments/{commentId} | 댓글 등록             | 권한 필요               |
 |          | PUT    | /posts{postId}/comments/{commentId} | 댓글 수정             | 권한 필요               |
 |          | DELETE | /posts{postId}/comments/{commentId} | 댓글 삭제             | 권한 필요               |
