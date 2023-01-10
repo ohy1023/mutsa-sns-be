@@ -48,7 +48,7 @@ public class CommentService {
                 .alarmType(NEW_COMMENT_ON_POST)
                 .text(NEW_COMMENT_ON_POST.getAlarmText())
                 .fromUserId(user.getId())
-                .targetId(post.getId())
+                .targetId(post.getUser().getId())
                 .build());
 
         return CommentDto.toCommentDto(savedComment);

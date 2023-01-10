@@ -49,7 +49,7 @@ public class LikeService {
                 .alarmType(NEW_LIKE_ON_POST)
                 .text(NEW_LIKE_ON_POST.getAlarmText())
                 .fromUserId(user.getId())
-                .targetId(post.getId())
+                .targetId(post.getUser().getId())
                 .build());
         return true;
     }
