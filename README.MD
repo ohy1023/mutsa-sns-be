@@ -20,7 +20,7 @@
 
 <img src="./ERD.png">
 
-### ✔ API 기능 명세서
+### ✔ Endpoint
 
 - [Swagger](http://ec2-54-180-83-38.ap-northeast-2.compute.amazonaws.com:8080/swagger-ui/index.html#/)
 
