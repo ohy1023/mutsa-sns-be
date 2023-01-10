@@ -18,12 +18,8 @@
 - CI/CD : gitlab
 
 ### ✔ ERD
+<img src="./ERD.png">
 
-<p align="center">
-  <br>
-  <img src="./ERD.png">
-  <br>
-</p>
 
 ### ✔ API 기능 명세서
 추가 예정
