@@ -145,10 +145,6 @@ class PostServiceTest {
         given(postRepository.findById(post.getId()))
                 .willReturn(Optional.of(post));
 
-        given(postRepository.save(post))
-                .willReturn(post);
-
-
         // when
         PostDto postDto = postService.update(post.getId(), user.getUserName(), updateRequest.getTitle(), updateRequest.getBody());
 

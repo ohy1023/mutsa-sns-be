@@ -58,10 +58,9 @@ public class PostService {
             throw new SnsAppException(INVALID_PERMISSION, INVALID_PERMISSION.getMessage());
         }
 
-        post.setTitle(title);
-        post.setBody(body);
-        Post updatedPost = postRepository.save(post);
-        return PostDto.toPostDto(updatedPost);
+        post.updatePost(title,body);
+
+        return PostDto.toPostDto(post);
     }
 
     @Transactional

@@ -45,12 +45,8 @@ public class Post extends BaseEntity {
         this.comments = comments;
     }
 
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public void setBody(String body) {
-        this.body = body;
+    public void updatePost(String updatedTitle, String updatedBody) {
+        this.title = updatedTitle;
+        this.body = updatedBody;
     }
 }
