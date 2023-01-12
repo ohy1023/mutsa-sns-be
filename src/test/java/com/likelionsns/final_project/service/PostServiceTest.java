@@ -75,6 +75,7 @@ class PostServiceTest {
 
         // then
         assertThat(postDto.getId()).isEqualTo(post.getId());
+        System.out.println(postDto.toString());
 
     }
 

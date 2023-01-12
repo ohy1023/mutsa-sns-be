@@ -5,6 +5,7 @@ import com.likelionsns.final_project.domain.request.UserJoinRequest;
 import com.likelionsns.final_project.domain.request.UserLoginRequest;
 import com.likelionsns.final_project.domain.response.UserJoinResponse;
 import com.likelionsns.final_project.exception.SnsAppException;
+import com.likelionsns.final_project.service.AlarmService;
 import com.likelionsns.final_project.service.UserService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -32,6 +33,9 @@ class UserControllerTest {
 
     @MockBean
     UserService userService;
+
+    @MockBean
+    AlarmService alarmService;
 
     @Autowired
     ObjectMapper objectMapper;
