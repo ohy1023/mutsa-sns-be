@@ -76,9 +76,8 @@ public class CommentService {
         if (isMismatch(userName, comment)) {
             throw new SnsAppException(INVALID_PERMISSION, INVALID_PERMISSION.getMessage());
         }
-        comment.setComment(commentUpdateRequest.getComment());
-        Comment updateComment = commentRepository.save(comment);
-        return CommentUpdateResponse.toResponse(updateComment);
+        comment.updateComment(commentUpdateRequest.getComment());
+        return CommentUpdateResponse.toResponse(comment);
     }
 
     @Transactional

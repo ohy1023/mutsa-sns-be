@@ -59,9 +59,6 @@ class CommentServiceTest {
         given(commentRepository.findById(comment.getId()))
                 .willReturn(Optional.of(comment));
 
-        given(commentRepository.save(comment))
-                .willReturn(comment);
-
         // when
         CommentUpdateResponse updateResponse = commentService.updateComment(post.getId(), comment.getId(), updateRequest, user.getUserName());
 
