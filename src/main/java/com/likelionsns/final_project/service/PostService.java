@@ -7,16 +7,18 @@ import com.likelionsns.final_project.domain.request.PostCreateRequest;
 import com.likelionsns.final_project.exception.SnsAppException;
 import com.likelionsns.final_project.repository.*;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 
 import javax.transaction.Transactional;
-import java.util.Objects;
 
+import static com.likelionsns.final_project.domain.enums.UserRole.*;
 import static com.likelionsns.final_project.exception.ErrorCode.*;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PostService {
@@ -54,11 +56,11 @@ public class PostService {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new SnsAppException(POST_NOT_FOUND, POST_NOT_FOUND.getMessage()));
 
-        if (isMismatch(userName, post)) {
+        if (checkAuth(userName, post, user)) {
             throw new SnsAppException(INVALID_PERMISSION, INVALID_PERMISSION.getMessage());
         }
 
-        post.updatePost(title,body);
+        post.updatePost(title, body);
 
         return PostDto.toPostDto(post);
     }
@@ -70,13 +72,20 @@ public class PostService {
         User user = userRepository.findByUserName(userName)
                 .orElseThrow(() -> new SnsAppException(USERNAME_NOT_FOUND, USERNAME_NOT_FOUND.getMessage()));
 
-        if (isMismatch(userName, post)) {
+        log.info("isNotAdmin:{}", !user.getUserRole().equals(ADMIN));
+        log.info("isNotMatchName:{}", !userName.equals(post.getUser().getUserName()));
+
+        if (checkAuth(userName, post, user)) {
             throw new SnsAppException(INVALID_PERMISSION, INVALID_PERMISSION.getMessage());
         }
         commentRepository.deleteAllByPost(post);
         likeRepository.deleteAllByPost(post);
         postRepository.delete(post);
         return true;
+    }
+
+    private static boolean checkAuth(String userName, Post post, User user) {
+        return !user.getUserRole().equals(ADMIN) && !userName.equals(post.getUser().getUserName());
     }
 
 
@@ -90,7 +99,4 @@ public class PostService {
         return myPosts;
     }
 
-    private static boolean isMismatch(String userName, Post post) {
-        return !Objects.equals(post.getUser().getUserName(), userName);
-    }
 }

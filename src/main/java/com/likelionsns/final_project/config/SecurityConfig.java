@@ -33,6 +33,7 @@ public class SecurityConfig {
                 .antMatchers(HttpMethod.GET, "api/v1/**").authenticated()
                 .antMatchers(HttpMethod.POST, "/api/v1/users/join", "/api/v1/users/login").permitAll()
                 .antMatchers(HttpMethod.POST, "/api/v1/**").authenticated()
+                .antMatchers( "/api/v1/users/{userId}/role").hasRole("ADMIN")
                 .antMatchers(HttpMethod.PUT).authenticated()
                 .antMatchers(HttpMethod.DELETE).authenticated()
                 .and()

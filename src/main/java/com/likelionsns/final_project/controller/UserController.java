@@ -6,6 +6,7 @@ import com.likelionsns.final_project.domain.response.Response;
 import com.likelionsns.final_project.domain.request.UserJoinRequest;
 import com.likelionsns.final_project.domain.response.UserJoinResponse;
 import com.likelionsns.final_project.domain.response.UserLoginResponse;
+import com.likelionsns.final_project.domain.response.UserRoleResponse;
 import com.likelionsns.final_project.service.AlarmService;
 import com.likelionsns.final_project.service.UserService;
 import io.swagger.annotations.ApiOperation;
@@ -42,6 +43,14 @@ public class UserController {
         String token = userService.login(userLoginRequest.getUserName(), userLoginRequest.getPassword());
         return ResponseEntity.ok().body(Response.success(new UserLoginResponse(token)));
     }
+
+    @ApiOperation(value = "역할 변경")
+    @PostMapping("/{userId}/role")
+    public ResponseEntity<Response<UserRoleResponse>> changeRole(@PathVariable Integer userId, Authentication authentication) {
+        UserRoleResponse response = userService.changeRole(userId, authentication.getName());
+        return ResponseEntity.ok().body(Response.success(response));
+    }
+
 
     @ApiOperation("알림 목록 조회")
     @GetMapping("/alarm")

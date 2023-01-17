@@ -43,6 +43,16 @@ public class User extends BaseEntity {
         this.userRole = this.userRole == null ? USER : this.userRole;
     }
 
+    public User promoteRole(User user) {
+        user.userRole = ADMIN;
+        return user;
+    }
+
+    public User demoteRole(User user) {
+        user.userRole = USER;
+        return user;
+    }
+
     @Builder
     public User(Integer id, String userName, String password, UserRole userRole) {
         this.id = id;
