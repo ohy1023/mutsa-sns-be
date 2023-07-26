@@ -16,14 +16,15 @@ import java.util.List;
 import static com.likelionsns.final_project.domain.enums.UserRole.*;
 
 @Entity
+@Table(name = "users")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Where(clause = "deleted_at IS NULL")
-@SQLDelete(sql = "UPDATE user SET deleted_at = CURRENT_TIMESTAMP WHERE user_id = ?")
+@SQLDelete(sql = "UPDATE users SET deleted_at = CURRENT_TIMESTAMP WHERE users_id = ?")
 public class User extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "user_id")
+    @Column(name = "users_id")
     private Integer id;
 
     private String userName;
@@ -37,6 +38,14 @@ public class User extends BaseEntity {
     @OneToMany(mappedBy = "user")
     private List<Post> posts = new ArrayList<>();
 
+    @OneToMany(mappedBy = "sender", cascade = CascadeType.ALL)
+    private List<ChatMessage> sentMessages = new ArrayList<>();
+
+    @OneToMany(mappedBy = "receiver", cascade = CascadeType.ALL)
+    private List<ChatMessage> receivedMessages = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user")
+    private List<UserChatRoom> userChatRooms = new ArrayList<>();
 
     @PrePersist
     public void prePersist() {
