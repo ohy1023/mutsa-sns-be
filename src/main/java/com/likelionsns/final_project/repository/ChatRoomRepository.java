@@ -1,10 +1,14 @@
 package com.likelionsns.final_project.repository;
 
-import com.likelionsns.final_project.domain.entity.ChatRoom;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
+import com.likelionsns.final_project.domain.dto.ChatRoom;
+import org.springframework.data.repository.CrudRepository;
 
-@Repository
-public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long> {
-    // 추가적인 메서드나 쿼리가 필요하면 여기에 선언합니다.
+import java.util.List;
+import java.util.Optional;
+
+public interface ChatRoomRepository extends CrudRepository<ChatRoom, String> {
+
+    List<ChatRoom> findByChatroomNo(Integer chatRoomNo);
+
+    Optional<ChatRoom> findByChatroomNoAndUserName(Integer chatRoomNo, String userName);
 }

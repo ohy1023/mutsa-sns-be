@@ -35,12 +35,16 @@ dependencies {
     implementation group: 'io.jsonwebtoken', name: 'jjwt', version: '0.9.1'
 
     // Kafka
-    implementation("org.springframework.kafka:spring-kafka")
+    implementation "org.springframework.kafka:spring-kafka"
 
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
-//    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
-    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+    implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
+
+    // guava
+    implementation("com.google.guava:guava:31.1-jre")
+
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
 }
 

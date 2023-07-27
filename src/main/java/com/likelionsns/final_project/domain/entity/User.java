@@ -38,14 +38,6 @@ public class User extends BaseEntity {
     @OneToMany(mappedBy = "user")
     private List<Post> posts = new ArrayList<>();
 
-    @OneToMany(mappedBy = "sender", cascade = CascadeType.ALL)
-    private List<ChatMessage> sentMessages = new ArrayList<>();
-
-    @OneToMany(mappedBy = "receiver", cascade = CascadeType.ALL)
-    private List<ChatMessage> receivedMessages = new ArrayList<>();
-
-    @OneToMany(mappedBy = "user")
-    private List<UserChatRoom> userChatRooms = new ArrayList<>();
 
     @PrePersist
     public void prePersist() {

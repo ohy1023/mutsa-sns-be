@@ -3,6 +3,10 @@ server:
     encoding:
       force-response: true
 spring:
+  profiles:
+    include:
+      - mongo
+      - redis
   jpa:
     hibernate:
       ddl-auto: update
