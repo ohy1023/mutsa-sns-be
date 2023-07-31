@@ -39,7 +39,7 @@ public class Message implements Serializable {
         this.id = id;
     }
 
-    public Chatting convertEntity() {
+    public Chatting toEntity() {
         return Chatting.builder()
                 .senderName(senderName)
                 .chatRoomNo(chatNo)

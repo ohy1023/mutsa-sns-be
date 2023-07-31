@@ -21,11 +21,11 @@ public class AlarmService {
     private final AlarmRepository alarmRepository;
     private final UserRepository userRepository;
 
-    public Page<AlarmDto> getAlarms(String userName,Pageable pageable) {
+    public Page<AlarmDto> getAlarms(String userName, Pageable pageable) {
         User user = userRepository.findByUserName(userName)
                 .orElseThrow(() -> new SnsAppException(USERNAME_NOT_FOUND, USERNAME_NOT_FOUND.getMessage()));
-        log.info("user_id : {}",user.getId());
-        Page<Alarm> alarms = alarmRepository.findAllByUser(user.getId(),pageable);
+        log.info("user_id : {}", user.getId());
+        Page<Alarm> alarms = alarmRepository.findAllByUser(user.getId(), pageable);
         Page<AlarmDto> alarmDtos = AlarmDto.toDtoList(alarms);
         return alarmDtos;
     }
