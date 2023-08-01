@@ -1,6 +1,7 @@
-package com.likelionsns.final_project.controller;
+package com.likelionsns.final_project.restcontroller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.likelionsns.final_project.controller.api.UserRestController;
 import com.likelionsns.final_project.domain.request.UserJoinRequest;
 import com.likelionsns.final_project.domain.request.UserLoginRequest;
 import com.likelionsns.final_project.domain.response.UserJoinResponse;
@@ -25,8 +26,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(UserController.class)
-class UserControllerTest {
+@WebMvcTest(UserRestController.class)
+class UserRestControllerTest {
 
     @Autowired
     MockMvc mockMvc;

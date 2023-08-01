@@ -1,4 +1,4 @@
-package com.likelionsns.final_project.controller;
+package com.likelionsns.final_project.controller.api;
 
 import com.likelionsns.final_project.domain.dto.AlarmDto;
 import com.likelionsns.final_project.domain.request.UserLoginRequest;
@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("api/v1/users")
-public class UserController {
+public class UserRestController {
     private final UserService userService;
 
     private final AlarmService alarmService;

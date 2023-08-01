@@ -17,6 +17,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
 @Slf4j
@@ -26,8 +27,25 @@ public class JwtFilter extends OncePerRequestFilter {
     private final UserService userService;
     private final String secretKey;
 
+    private static final String[] NO_CHECK_URL = {
+            "/swagger-ui/chat.html", "/swagger-ui/springfox.css",
+            "/swagger-ui/swagger-ui.css", "/swagger-ui/swagger-ui-standalone-preset.js",
+            "/swagger-ui/springfox.js", "/swagger-ui/swagger-ui-bundle.js",
+            "/swagger-resources/configuration/ui", "/swagger-ui/favicon-32x32.png",
+            "/swagger-resources/configuration/security", "/swagger-resources",
+            "/v3/api-docs", "api/v1/users/login", "/hello", "/chat", "/static/js/chat.js"
+    };
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+
+        log.info("requestUri:{}", request.getRequestURI());
+
+        if (Arrays.stream(NO_CHECK_URL).anyMatch(s -> s.equals(request.getRequestURI()))) {
+            filterChain.doFilter(request, response);
+            return; // return으로 이후 현재 필터 진행 막기
+        }
+
         final String authorizationHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
         log.info("authorization : {}", authorizationHeader);
 

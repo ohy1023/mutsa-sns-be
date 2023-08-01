@@ -1,6 +1,7 @@
-package com.likelionsns.final_project.controller;
+package com.likelionsns.final_project.restcontroller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.likelionsns.final_project.controller.api.PostRestController;
 import com.likelionsns.final_project.domain.dto.CommentDto;
 import com.likelionsns.final_project.domain.dto.PostDto;
 import com.likelionsns.final_project.domain.entity.Comment;
@@ -41,8 +42,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
-@WebMvcTest(PostController.class)
-class PostControllerTest {
+@WebMvcTest(PostRestController.class)
+class PostRestControllerTest {
 
     @Autowired
     MockMvc mockMvc;

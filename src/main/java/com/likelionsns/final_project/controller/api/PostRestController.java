@@ -1,4 +1,4 @@
-package com.likelionsns.final_project.controller;
+package com.likelionsns.final_project.controller.api;
 
 import com.likelionsns.final_project.domain.dto.CommentDto;
 import com.likelionsns.final_project.domain.dto.PostDto;
@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/posts")
-public class PostController {
+public class PostRestController {
     private final PostService postService;
 
     private final CommentService commentService;

@@ -1,4 +1,4 @@
-package com.likelionsns.final_project.controller;
+package com.likelionsns.final_project.controller.api;
 
 import com.likelionsns.final_project.domain.dto.ChatRequestDto;
 import com.likelionsns.final_project.domain.dto.Message;
@@ -18,14 +18,16 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-public class ChatController {
+public class ChatRestController {
 
     private final ChatService chatService;
     private final ChatRoomService chatRoomService;
 
     @PostMapping("/chatroom")
-    public ResponseEntity<Response<Chat>> createChatRoom(@RequestBody ChatRequestDto requestDto, Authentication authentication) {
+    public ResponseEntity<Response<Chat>> createChatRoom(ChatRequestDto requestDto, Authentication authentication) {
         String myName = authentication.getName();
+
+        log.info("userName: {}", myName);
 
         // 채팅방을 만들어준다.
         Chat chat = chatService.makeChatRoom(myName, requestDto);

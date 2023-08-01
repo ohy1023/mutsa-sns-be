@@ -1,4 +1,4 @@
-package com.likelionsns.final_project.controller;
+package com.likelionsns.final_project.controller.api;
 
 import com.likelionsns.final_project.service.HelloService;
 import lombok.RequiredArgsConstructor;
@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1")
-public class HelloController {
+public class HelloRestController {
 
     private final HelloService helloService;
 

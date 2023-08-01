@@ -12,6 +12,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.header.writers.StaticHeadersWriter;
 
 @Configuration
 @EnableWebSecurity
@@ -28,12 +29,13 @@ public class SecurityConfig {
                 .httpBasic().disable()
                 .csrf().disable()
                 .cors().and()
+//                .headers(headers -> headers.permissionsPolicy(policy -> policy.policy("browsing-topics=(self)")))
                 .authorizeHttpRequests()
                 .antMatchers(HttpMethod.GET, "api/v1/posts/**").permitAll()
                 .antMatchers(HttpMethod.GET, "api/v1/**").authenticated()
                 .antMatchers(HttpMethod.POST, "/api/v1/users/join", "/api/v1/users/login").permitAll()
                 .antMatchers(HttpMethod.POST, "/api/v1/**").authenticated()
-                .antMatchers( "/api/v1/users/{userId}/role").hasRole("ADMIN")
+                .antMatchers("/api/v1/users/{userId}/role").hasRole("ADMIN")
                 .antMatchers(HttpMethod.PUT).authenticated()
                 .antMatchers(HttpMethod.DELETE).authenticated()
                 .and()
