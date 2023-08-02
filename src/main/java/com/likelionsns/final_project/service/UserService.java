@@ -10,6 +10,7 @@ import com.likelionsns.final_project.exception.SnsAppException;
 import com.likelionsns.final_project.repository.UserRepository;
 import com.likelionsns.final_project.utils.JwtUtils;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,7 @@ import static com.likelionsns.final_project.domain.enums.UserRole.*;
 import static com.likelionsns.final_project.domain.enums.UserRole.ADMIN;
 import static com.likelionsns.final_project.exception.ErrorCode.*;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -42,6 +44,8 @@ public class UserService {
     @Transactional
     public String login(String userName, String password) {
 
+        log.info("userName:{}", userName);
+        log.info("password:{}", password);
         User user = userRepository.findByUserName(userName)
                 .orElseThrow(() -> new SnsAppException(USERNAME_NOT_FOUND, USERNAME_NOT_FOUND.getMessage()));
 

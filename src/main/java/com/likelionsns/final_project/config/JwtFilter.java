@@ -33,7 +33,8 @@ public class JwtFilter extends OncePerRequestFilter {
             "/swagger-ui/springfox.js", "/swagger-ui/swagger-ui-bundle.js",
             "/swagger-resources/configuration/ui", "/swagger-ui/favicon-32x32.png",
             "/swagger-resources/configuration/security", "/swagger-resources",
-            "/v3/api-docs", "api/v1/users/login", "/hello", "/chat", "/static/js/chat.js"
+            "/v3/api-docs", "/api/v1/users/login", "/hello", "/chat", "/static/js/chat.js",
+            "/login", "/register", "/"
     };
 
     @Override

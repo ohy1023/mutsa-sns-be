@@ -31,6 +31,7 @@ public class SecurityConfig {
                 .cors().and()
 //                .headers(headers -> headers.permissionsPolicy(policy -> policy.policy("browsing-topics=(self)")))
                 .authorizeHttpRequests()
+                .antMatchers("/index.jsp").permitAll()
                 .antMatchers(HttpMethod.GET, "api/v1/posts/**").permitAll()
                 .antMatchers(HttpMethod.GET, "api/v1/**").authenticated()
                 .antMatchers(HttpMethod.POST, "/api/v1/users/join", "/api/v1/users/login").permitAll()
