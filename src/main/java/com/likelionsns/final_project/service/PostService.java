@@ -44,8 +44,7 @@ public class PostService {
 
     public Page<PostDto> getAllItems(Pageable pageable) {
         Page<Post> posts = postRepository.findAll(pageable);
-        Page<PostDto> postDtos = PostDto.toDtoList(posts);
-        return postDtos;
+        return PostDto.toDtoList(posts);
     }
 
     @Transactional
