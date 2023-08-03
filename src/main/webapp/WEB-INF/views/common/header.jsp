@@ -136,7 +136,7 @@
 
             notifications.forEach(notification => {
                 const li = document.createElement("li");
-                li.textContent = notification;
+                li.textContent = notification.alarmType;
                 notificationList.appendChild(li);
             });
         }
@@ -147,8 +147,7 @@
             const notificationIcon = document.querySelector(".notification-icon");
             const postLink = document.querySelector(".post-link");
             const chatLink = document.querySelector(".chat-link");
-
-            if (getAccessToken()) {
+            if (getAccessToken() !== "Bearer null") {
                 logoutLink.style.display = "block";
                 notificationIcon.style.display = "block";
                 postLink.style.display = "block";
