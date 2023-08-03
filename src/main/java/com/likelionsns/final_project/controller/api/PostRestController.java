@@ -39,9 +39,9 @@ public class PostRestController {
 
     @ApiOperation(value = "포스트 상세 보기")
     @GetMapping("/{postId}")
-    public ResponseEntity<Response<PostDto>> findById(@PathVariable Integer postId) {
-        PostDto postDto = postService.findDetail(postId);
-        return ResponseEntity.ok().body(Response.success(postDto));
+    public ResponseEntity<Response<PostDetailResponse>> findById(@PathVariable Integer postId) {
+        PostDetailResponse response = postService.findDetail(postId);
+        return ResponseEntity.ok().body(Response.success(response));
     }
 
     @ApiOperation(value = "포스트 목록")

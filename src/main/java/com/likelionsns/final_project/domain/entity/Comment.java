@@ -31,15 +31,19 @@ public class Comment extends BaseEntity {
     @JoinColumn(name = "user_id")
     private User user;
 
-    public void updateComment(String updatedComment) {
-        this.comment = updatedComment;
-    }
-
     @Builder
     public Comment(Integer id, String comment, Post post, User user) {
         this.id = id;
         this.comment = comment;
         this.post = post;
         this.user = user;
+    }
+
+    public void updateComment(String updatedComment) {
+        this.comment = updatedComment;
+    }
+
+    public void addPost(Post post) {
+        this.post = post;
     }
 }

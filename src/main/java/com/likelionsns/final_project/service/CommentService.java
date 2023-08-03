@@ -43,6 +43,8 @@ public class CommentService {
 
         Comment savedComment = commentRepository.save(commentCreateRequest.toEntity(user, post));
 
+        post.addComment(savedComment);
+
         alarmRepository.save(Alarm.builder()
                 .user(post.getUser())
                 .alarmType(NEW_COMMENT_ON_POST)

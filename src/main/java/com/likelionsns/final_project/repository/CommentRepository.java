@@ -15,4 +15,6 @@ public interface CommentRepository extends JpaRepository<Comment, Integer> {
     void deleteAllByPost(Post post);
 
     Page<Comment> findAllByPost(Post post, Pageable pageable);
+
+    Long countByPost(Post post);
 }

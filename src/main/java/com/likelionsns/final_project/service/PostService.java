@@ -4,6 +4,7 @@ import com.likelionsns.final_project.domain.dto.PostDto;
 import com.likelionsns.final_project.domain.entity.Post;
 import com.likelionsns.final_project.domain.entity.User;
 import com.likelionsns.final_project.domain.request.PostCreateRequest;
+import com.likelionsns.final_project.domain.response.PostDetailResponse;
 import com.likelionsns.final_project.exception.SnsAppException;
 import com.likelionsns.final_project.repository.*;
 import lombok.RequiredArgsConstructor;
@@ -36,10 +37,15 @@ public class PostService {
         return PostDto.toPostDto(savedPost);
     }
 
-    public PostDto findDetail(Integer id) {
+    public PostDetailResponse findDetail(Integer id) {
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new SnsAppException(POST_NOT_FOUND, POST_NOT_FOUND.getMessage()));
-        return PostDto.toPostDto(post);
+
+        Long likeCnt = likeRepository.countByPost(post);
+
+        Long commentCnt = commentRepository.countByPost(post);
+
+        return PostDetailResponse.toResponse(post, likeCnt, commentCnt);
     }
 
     public Page<PostDto> getAllItems(Pageable pageable) {
