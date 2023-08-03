@@ -19,27 +19,6 @@
             padding: 20px;
         }
 
-        header {
-            background-color: #ff7f00;
-            font-weight: bold;
-            font-size: 30pt;
-            height: 50px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 20px;
-        }
-
-        .header-link {
-            text-decoration: none;
-            color: white;
-            padding: 10px 20px;
-        }
-
-        .header-link:hover {
-            background-color: #ff9900;
-        }
-
         h1 {
             text-align: center;
             margin-top: 100px;
@@ -78,7 +57,7 @@
 <div class="container">
     <h1>멋쟁이 사자처럼 SNS에 오신 것을 환영합니다!</h1>
     <p>로그인하고 다른 멋쟁이 사자처럼 SNS 회원들과 채팅을 즐겨보세요.</p>
-    <a class="cta-btn" href="#">시작하기</a>
+    <a class="cta-btn" href="/login">시작하기</a>
 </div>
 
 <%@ include file="../common/footer.jsp" %>

@@ -1,4 +1,4 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -38,7 +38,7 @@
             margin-bottom: 5px;
         }
 
-        input[type="text"] {
+        input[type="number"] {
             width: 100%;
             padding: 10px;
             margin-bottom: 20px;
@@ -46,7 +46,7 @@
             border-radius: 5px;
         }
 
-        button[type="button"] {
+        button[type="submit"] {
             width: 100%;
             padding: 10px;
             background-color: #333;
@@ -56,7 +56,26 @@
             cursor: pointer;
         }
 
-        button[type="button"]:hover {
+        button[type="submit"]:hover {
+            background-color: #ff9900;
+        }
+
+        /* 추가한 스타일 */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            background-color: #ff7f00;
+        }
+
+        a {
+            text-decoration: none;
+            color: white;
+            padding: 5px 10px;
+        }
+
+        a:hover {
             background-color: #ff9900;
         }
     </style>
@@ -72,28 +91,63 @@
 </form>
 <%@ include file="../common/footer.jsp" %>
 <script>
-    function getAccessToken() {
-        // 로컬 스토리지에서 토큰을 가져오기
-        return "Bearer " + localStorage.getItem("accessToken");
+    // WebSocket 연결을 위한 변수 선언
+    let ws;
+
+    // WebSocket 연결 함수
+    function connectWebSocket() {
+        // WebSocket 엔드포인트 주소
+        const wsEndpoint = "ws://localhost:8080/chat";
+
+        // WebSocket 연결
+        ws = new SockJS(wsEndpoint);
+
+        // WebSocket 연결 이벤트 리스너
+        ws.onopen = function () {
+            console.log("WebSocket 연결 성공!");
+        };
+
+        // WebSocket 메시지 수신 이벤트 리스너
+        ws.onmessage = function (event) {
+            const data = JSON.parse(event.data);
+            console.log("WebSocket 메시지 수신:", data);
+        };
+
+        // WebSocket 연결 종료 이벤트 리스너
+        ws.onclose = function () {
+            console.log("WebSocket 연결 종료!");
+        };
     }
 
+    // WebSocket 연결
+    connectWebSocket();
+
+    // 메시지 전송 함수
     function sendMessage() {
-        const formData = new FormData(document.getElementById("sendMessageForm"));
-        const xhr = new XMLHttpRequest();
-        xhr.open("POST", "/message");
-        xhr.setRequestHeader("Authorization", getAccessToken()); // 로컬 스토리지에서 토큰을 가져와서 설정
-        xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-        xhr.onreadystatechange = function () {
-            if (xhr.readyState === 4) {
-                if (xhr.status === 200) {
-                    const response = JSON.parse(xhr.responseText);
-                    alert("메시지 전송 성공: " + response.data);
-                } else {
-                    alert("메시지 전송 실패");
-                }
-            }
-        };
-        xhr.send(formData);
+        const chatNo = 1;
+        const content = document.getElementById("content").value;
+
+        // WebSocket을 통해 메시지 전송
+        ws.send(JSON.stringify({
+            chatNo: chatNo,
+            content: content
+        }));
+
+        // HTTP POST 요청을 통해 콜백 엔드포인트 호출
+        fetch("/chatroom/notification", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + localStorage.getItem("accessToken")
+            },
+            body: JSON.stringify({
+                chatNo: chatNo,
+                content: content
+            })
+        })
+            .then(response => response.json())
+            .then(data => console.log("콜백 데이터 수신:", data))
+            .catch(error => console.error("콜백 요청 실패:", error));
     }
 </script>
 </body>

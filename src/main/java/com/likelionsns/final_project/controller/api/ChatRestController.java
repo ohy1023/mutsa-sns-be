@@ -24,7 +24,7 @@ public class ChatRestController {
     private final ChatRoomService chatRoomService;
 
     @PostMapping("/chatroom")
-    public ResponseEntity<Response<Chat>> createChatRoom(ChatRequestDto requestDto, Authentication authentication) {
+    public ResponseEntity<Response<Chat>> createChatRoom(@RequestBody ChatRequestDto requestDto, Authentication authentication) {
         String myName = authentication.getName();
 
         log.info("userName: {}", myName);

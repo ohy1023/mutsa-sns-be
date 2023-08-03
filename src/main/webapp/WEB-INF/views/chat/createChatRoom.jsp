@@ -39,7 +39,7 @@
         }
 
         input[type="number"] {
-            width: 100%;
+            width: 94%;
             padding: 10px;
             margin-bottom: 20px;
             border: 1px solid #ddd;
@@ -49,7 +49,7 @@
         button[type="submit"] {
             width: 100%;
             padding: 10px;
-            background-color: #333;
+            background-color: #ff7f00;
             color: white;
             border: none;
             border-radius: 5px;
@@ -78,28 +78,38 @@
         return "Bearer " + localStorage.getItem("accessToken");
     }
 
-    function createChatRoom(event) {
+    async function createChatRoom(event) {
         event.preventDefault();
-        const formData = new URLSearchParams();
-        formData.append("joinUserId", document.getElementById("joinUserId").value);
 
-        const xhr = new XMLHttpRequest();
-        xhr.open("POST", "/chatroom");
-        xhr.setRequestHeader("Authorization", getAccessToken());
-        xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-        xhr.onreadystatechange = function () {
-            if (xhr.readyState === 4) {
-                if (xhr.status === 200) {
-                    const response = JSON.parse(xhr.responseText);
-                    const chatNo = response.result.chatNo
-                    const code = response.resultCode
-                    alert("채팅방 " + chatNo + "번 생성 " + code);
-                } else {
-                    alert("채팅방 생성 실패");
-                }
+
+        const createChatData = {
+            joinUserId: document.getElementById("joinUserId").value,
+        }
+
+        const requestBody = JSON.stringify(createChatData);
+
+        try {
+            const response = await fetch("/chatroom", {
+                method: "POST",
+                headers: {
+                    "Authorization": getAccessToken(),
+                    "Content-Type": "application/json"
+                },
+                body: requestBody
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                const chatNo = data.result.chatNo;
+                const code = data.resultCode;
+                alert("채팅방 " + chatNo + "번 생성 " + code);
+            } else {
+                alert("채팅방 생성 실패");
             }
-        };
-        xhr.send(formData);
+        } catch (error) {
+            console.error("채팅방 생성 오류:", error);
+            alert("채팅방 생성 중 오류가 발생했습니다.");
+        }
     }
 </script>
 </body>

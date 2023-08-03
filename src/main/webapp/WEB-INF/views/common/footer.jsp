@@ -19,18 +19,18 @@
             width: 100%; /* 가로 폭을 100%로 설정하여 화면 크기에 맞게 폭을 늘림 */
             background-color: #ff7f00;
             font-weight: bold;
-            font-size: 10pt;
-            height: 30px;
+            font-size: 20pt;
+            color: #666;
+            height: 40px;
             display: flex;
             justify-content: center;
             align-items: center;
-            color: white;
         }
     </style>
 </head>
 <body>
 <footer>
-    <p>저작권 © 2023 멋쟁이 사자처럼 SNS. All rights reserved.</p>
+    저작권 © 2023 멋쟁이 사자처럼 SNS. All rights reserved.
 </footer>
 </body>
 </html>
