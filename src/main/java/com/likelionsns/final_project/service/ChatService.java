@@ -170,4 +170,8 @@ public class ChatService {
         return mongoTemplate.count(query, Chatting.class);
     }
 
+//    public List<Chat> getChatRoomList(String userName) {
+//        chatRepository
+//        return
+//    }
 }

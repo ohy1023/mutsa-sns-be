@@ -33,9 +33,9 @@ public class StompHandler implements ChannelInterceptor {
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
         // StompCommand에 따라서 로직을 분기해서 처리하는 메서드를 호출한다.
-        String userName = verifyAccessToken(getAccessToken(accessor));
-        log.info("StompAccessor = {}", accessor);
-        handleMessage(accessor.getCommand(), accessor, userName);
+//        String userName = verifyAccessToken(getAccessToken(accessor));
+        String userName = JwtUtils.getUserName(getAccessToken(accessor), secretKey);
+        handleMessage(Objects.requireNonNull(accessor.getCommand()), accessor, userName);
         return message;
     }
 
@@ -53,7 +53,9 @@ public class StompHandler implements ChannelInterceptor {
     }
 
     private String getAccessToken(StompHeaderAccessor accessor) {
-        return accessor.getFirstNativeHeader("Authorization");
+
+        String token = accessor.getFirstNativeHeader("Authorization");
+        return Objects.requireNonNull(token).split(" ")[1].trim();
     }
 
     private void connectToChatRoom(StompHeaderAccessor accessor, String userName) {

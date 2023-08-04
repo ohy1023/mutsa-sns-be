@@ -15,4 +15,14 @@ public class ChatController {
     public String sendMessage() {
         return "chat/sendMessage";
     }
+
+    @GetMapping("/sendTest")
+    public String sendTest() {
+        return "chat/sendTest";
+    }
+
+    @GetMapping("/chats")
+    public String chats() {
+        return "chat/chats";
+    }
 }

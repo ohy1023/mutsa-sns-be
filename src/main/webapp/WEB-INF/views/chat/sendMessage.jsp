@@ -1,154 +1,120 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>멋쟁이 사자처럼 SNS</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            line-height: 1.6;
-            background-color: #f7f7f7;
-        }
-
-        header {
-            background-color: #333;
-            color: white;
-            padding: 10px;
-            text-align: center;
-        }
-
-        h1 {
-            margin-top: 20px;
-            text-align: center;
-        }
-
-        form {
-            max-width: 400px;
-            margin: 0 auto;
-            padding: 20px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
-            background-color: #fff;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 5px;
-        }
-
-        input[type="number"] {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 20px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-        }
-
-        button[type="submit"] {
-            width: 100%;
-            padding: 10px;
-            background-color: #333;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        button[type="submit"]:hover {
-            background-color: #ff9900;
-        }
-
-        /* 추가한 스타일 */
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 20px;
-            background-color: #ff7f00;
-        }
-
-        a {
-            text-decoration: none;
-            color: white;
-            padding: 5px 10px;
-        }
-
-        a:hover {
-            background-color: #ff9900;
-        }
-    </style>
+    <title>WebSocket 사용 예제</title>
 </head>
 <body>
-<%@ include file="../common/header.jsp" %>
-<h1>채팅 메시지 전송</h1>
-<form id="sendMessageForm">
-    <input type="hidden" id="chatNo" name="chatNo" value="1"> <!-- 채팅방 번호를 여기에 입력 -->
-    <label for="content">메시지 내용:</label>
-    <input type="text" id="content" name="content" required>
-    <button type="button" onclick="sendMessage()">메시지 전송</button>
-</form>
-<%@ include file="../common/footer.jsp" %>
+<h1>WebSocket 사용 예제</h1>
+<!-- WebSocket 클라이언트 라이브러리 불러오기 -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.js"
+        integrity="sha512-tL4PIUsPy+Rks1go4kQG8M8/ItpRMvKnbBjQm4d2DQnFwgcBYRRN00QdyQnWSCwNMsoY/MfJY8nHp2CzlNdtZA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.1/sockjs.min.js"></script>
+
 <script>
     // WebSocket 연결을 위한 변수 선언
-    let ws;
+    let stompClient;
+    let isConnected = false;
+
+    // JWT 토큰 설정 함수
+    function getAccessToken() {
+        // 로컬 스토리지에서 토큰을 가져오기
+        return "Bearer " + localStorage.getItem("accessToken");
+    }
 
     // WebSocket 연결 함수
     function connectWebSocket() {
-        // WebSocket 엔드포인트 주소
-        const wsEndpoint = "ws://localhost:8080/chat";
+        const wsEndpoint = 'http://localhost:8081/chat'; // WebSocket 연결 엔드포인트 주소
+        const socket = new SockJS(wsEndpoint);
+        stompClient = Stomp.over(socket);
 
-        // WebSocket 연결
-        ws = new SockJS(wsEndpoint);
+        // STOMP 연결 완료 시 처리
+        stompClient.connect({'Authorization': getAccessToken(), 'chatRoomNo': 13}, function (frame) {
+            console.log('WebSocket 연결 성공!');
+            isConnected = true;
 
-        // WebSocket 연결 이벤트 리스너
-        ws.onopen = function () {
-            console.log("WebSocket 연결 성공!");
-        };
+            subscribeToTopic('/subscribe/13');
+        });
+    }
 
-        // WebSocket 메시지 수신 이벤트 리스너
-        ws.onmessage = function (event) {
-            const data = JSON.parse(event.data);
-            console.log("WebSocket 메시지 수신:", data);
-        };
-
-        // WebSocket 연결 종료 이벤트 리스너
-        ws.onclose = function () {
-            console.log("WebSocket 연결 종료!");
-        };
+    // 구독 설정 함수
+    function subscribeToTopic(topic) {
+        stompClient.subscribe(topic, function (message) {
+            const receivedMessage = JSON.parse(message.body);
+            console.log('새로운 메시지 수신:', receivedMessage);
+            // 원하는 방식으로 메시지 처리를 수행합니다.
+        });
     }
 
     // WebSocket 연결
     connectWebSocket();
 
+    // 연결 상태 확인 함수
+    function checkConnection() {
+        if (isConnected) {
+            console.log('WebSocket 연결이 완료되었습니다.');
+        } else {
+            console.log('WebSocket 연결이 아직 완료되지 않았습니다.');
+        }
+    }
+
+    // 1초마다 연결 상태 확인
+    setInterval(checkConnection, 1000);
+
     // 메시지 전송 함수
     function sendMessage() {
-        const chatNo = 1;
-        const content = document.getElementById("content").value;
+        if (!isConnected) {
+            console.log('WebSocket 연결이 완료되지 않았습니다.');
+            return;
+        }
+
+        const message = {
+            content: "hello",
+            senderName: "test",
+            chatNo: 13, // 채팅방 번호 추가
+            sendTime: 0, // 현재 시간을 사용하여 메시지 시간 정보 추가
+            readCount: 0
+        };
 
         // WebSocket을 통해 메시지 전송
-        ws.send(JSON.stringify({
-            chatNo: chatNo,
-            content: content
-        }));
+        stompClient.send("/message", {'Authorization': getAccessToken()}, JSON.stringify(message));
 
-        // HTTP POST 요청을 통해 콜백 엔드포인트 호출
+        // 콜백 API 호출
+        callCallbackAPI(message);
+    }
+
+    // 콜백 API 호출 함수
+    function callCallbackAPI(message) {
+        const accessToken = getAccessToken();
+
         fetch("/chatroom/notification", {
             method: "POST",
             headers: {
-                "Content-Type": "application/json",
-                "Authorization": "Bearer " + localStorage.getItem("accessToken")
+                "Authorization": accessToken,
+                "Content-Type": "application/json"
             },
-            body: JSON.stringify({
-                chatNo: chatNo,
-                content: content
-            })
+            body: JSON.stringify(message)
         })
-            .then(response => response.json())
-            .then(data => console.log("콜백 데이터 수신:", data))
-            .catch(error => console.error("콜백 요청 실패:", error));
+            .then(response => {
+                if (!response.ok) {
+                    console.error("콜백 API 호출에 실패하였습니다.");
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log("콜백 API 응답:", data);
+            })
+            .catch(error => {
+                console.error("콜백 API 호출 중 오류 발생:", error);
+            });
     }
 </script>
+
+<!-- 메시지 전송 버튼 -->
+<button onclick="sendMessage()">메시지 보내기</button>
+
 </body>
 </html>

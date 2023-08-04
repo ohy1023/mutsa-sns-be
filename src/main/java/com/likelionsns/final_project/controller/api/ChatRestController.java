@@ -12,6 +12,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.Payload;
+import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -35,6 +37,13 @@ public class ChatRestController {
         return ResponseEntity.ok(Response.success(chat));
     }
 
+//    @GetMapping("/myChatRoom")
+//    public ResponseEntity<Response<List<Chat>>> myRoom(Authentication authentication) {
+//        String userName = authentication.getName();
+//
+//        chatService.getChatRoomList(userName);
+//    }
+
     // 채팅내역 조회
     @GetMapping("/chatroom/{roomNo}")
     public ResponseEntity<Response<ChattingHistoryResponseDto>> chattingList(@PathVariable("roomNo") Integer roomNo, Authentication authentication) {
@@ -43,9 +52,17 @@ public class ChatRestController {
         return ResponseEntity.ok(Response.success(chattingList));
     }
 
+//    @MessageMapping("/message")
+//    public void sendMessage(Message message, @Header("Authorization") final String accessToken) {
+//        chatService.sendMessage(message, accessToken);
+//    }
+
     @MessageMapping("/message")
-    public void sendMessage(Message message, @Header("Authorization") final String accessToken) {
+    @SendTo("/publish/message") // 클라이언트가 구독하는 토픽에 메시지를 보냅니다.
+    public Message sendMessage(@Payload Message message, @Header("Authorization") final String accessToken) {
+        // 메시지를 받아 처리하고, 클라이언트에게 다시 보낼 데이터를 반환합니다.
         chatService.sendMessage(message, accessToken);
+        return message;
     }
 
     // 채팅방 접속 끊기
