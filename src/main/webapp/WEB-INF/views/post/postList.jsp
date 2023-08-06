@@ -51,6 +51,24 @@
         .post-item p {
             margin: 10px 0;
         }
+
+        .create-post-button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            text-align: center;
+            text-decoration: none;
+            transition: background-color 0.3s;
+        }
+
+        .create-post-button:hover {
+            background-color: #0056b3;
+        }
     </style>
 </head>
 <body>
@@ -60,6 +78,10 @@
 <h1>피드 목록</h1>
 <div id="post-list">
     <!-- 포스트 목록이 여기에 동적으로 추가됩니다. -->
+</div>
+
+<div style="position: fixed; right: 400px; bottom: 750px;">
+    <a class="create-post-button" onclick="goToCreatePost()">글 작성하기</a>
 </div>
 
 
@@ -91,7 +113,7 @@
             postItem.classList.add("post-item");
 
             const postNumber = document.createElement("p");
-            postNumber.textContent = "포스트 번호: " + post.id;
+            postNumber.textContent = "NO." + post.id;
 
             // 포스트 상세보기 페이지로 넘어가는 링크 추가
             const postLink = createPostLink(post);
@@ -128,6 +150,10 @@
             .catch(error => {
                 console.error("Error fetching posts:", error);
             });
+    }
+
+    function goToCreatePost() {
+        window.location.href = "/createPost"; // 여기에 글 작성하기 화면 URL로 이동할 경로를 넣으세요.
     }
 
     document.addEventListener("DOMContentLoaded", function () {

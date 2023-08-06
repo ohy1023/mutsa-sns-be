@@ -3,7 +3,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>포스트 상세보기</title>
+    <title>멋쟁이 사자처럼 SNS</title>
     <style>
         body {
             font-family: Arial, sans-serif;
