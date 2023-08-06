@@ -4,11 +4,13 @@ import com.likelionsns.final_project.domain.dto.ChatRequestDto;
 import com.likelionsns.final_project.domain.dto.Message;
 import com.likelionsns.final_project.domain.entity.Chat;
 import com.likelionsns.final_project.domain.response.ChattingHistoryResponseDto;
+import com.likelionsns.final_project.domain.response.MyChatRoomResponse;
 import com.likelionsns.final_project.domain.response.Response;
 import com.likelionsns.final_project.service.ChatRoomService;
 import com.likelionsns.final_project.service.ChatService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -16,6 +18,8 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -37,12 +41,6 @@ public class ChatRestController {
         return ResponseEntity.ok(Response.success(chat));
     }
 
-//    @GetMapping("/myChatRoom")
-//    public ResponseEntity<Response<List<Chat>>> myRoom(Authentication authentication) {
-//        String userName = authentication.getName();
-//
-//        chatService.getChatRoomList(userName);
-//    }
 
     // 채팅내역 조회
     @GetMapping("/chatroom/{roomNo}")
@@ -52,15 +50,21 @@ public class ChatRestController {
         return ResponseEntity.ok(Response.success(chattingList));
     }
 
-//    @MessageMapping("/message")
-//    public void sendMessage(Message message, @Header("Authorization") final String accessToken) {
-//        chatService.sendMessage(message, accessToken);
-//    }
+    // 내가 참여중인 채팅 방 조회
+    @GetMapping("/my-chatroom")
+    public ResponseEntity<Response<List<MyChatRoomResponse>>> chatRoomList(Authentication authentication) {
+        String myName = authentication.getName();
 
+        List<MyChatRoomResponse> chatRoomList = chatService.getChatRoomList(myName);
+
+        return ResponseEntity.ok(Response.success(chatRoomList));
+    }
+
+
+    // 메세지 전송
     @MessageMapping("/message")
     @SendTo("/publish/message") // 클라이언트가 구독하는 토픽에 메시지를 보냅니다.
     public Message sendMessage(@Payload Message message, @Header("Authorization") final String accessToken) {
-        // 메시지를 받아 처리하고, 클라이언트에게 다시 보낼 데이터를 반환합니다.
         chatService.sendMessage(message, accessToken);
         return message;
     }

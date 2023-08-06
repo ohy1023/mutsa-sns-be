@@ -1,5 +1,6 @@
 package com.likelionsns.final_project.domain.entity;
 
+import com.likelionsns.final_project.domain.response.MyChatRoomResponse;
 import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
 
@@ -27,6 +28,14 @@ public class Chat {
 
     @Column(name = "reg_date")
     private LocalDateTime regDate;
+
+
+    public MyChatRoomResponse toResponse(User user) {
+        return MyChatRoomResponse.builder()
+                .chatRoomId(this.chatNo)
+                .joinUserName(user.getUserName())
+                .build();
+    }
 
 
 }
