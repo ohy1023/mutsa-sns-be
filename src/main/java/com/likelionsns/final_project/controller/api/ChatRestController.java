@@ -50,7 +50,7 @@ public class ChatRestController {
         return ResponseEntity.ok(Response.success(chattingList));
     }
 
-    // 내가 참여중인 채팅 방 조회
+    //내가 참여중인 채팅 방 조회
     @GetMapping("/my-chatroom")
     public ResponseEntity<Response<List<MyChatRoomResponse>>> chatRoomList(Authentication authentication) {
         String myName = authentication.getName();

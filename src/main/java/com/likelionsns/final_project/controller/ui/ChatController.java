@@ -16,4 +16,9 @@ public class ChatController {
         return "chat/sendTest";
     }
 
+    @GetMapping("/myChat")
+    public String myChat() {
+        return "chat/myChatRoom";
+    }
+
 }

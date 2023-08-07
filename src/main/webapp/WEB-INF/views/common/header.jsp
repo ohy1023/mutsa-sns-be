@@ -177,7 +177,7 @@
         <%-- 포스트 링크 (로그인 상태일 때만 보이기) --%>
         <a class="header-link post-link" href="/post-list">포스트</a>
         <%-- 채팅 링크 (로그인 상태일 때만 보이기) --%>
-        <a class="header-link chat-link" href="/chats">채팅</a>
+        <a class="header-link chat-link" href="/myChat">채팅</a>
     </div>
 
     <div class="header-right">
