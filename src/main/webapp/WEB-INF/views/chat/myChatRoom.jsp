@@ -91,7 +91,7 @@
 
                     const roomLink = document.createElement("a");
                     roomLink.className = "room-link";
-                    roomLink.href = "/enter-chatroom?roomId=" + chatRoom.chatRoomId;
+                    roomLink.href = "/sendTest?roomId=" + chatRoom.chatRoomId;
                     roomLink.textContent = "입장하기";
 
                     const roomActions = document.createElement("div");

@@ -107,6 +107,8 @@
             // 토큰을 localStorage에 저장
             localStorage.setItem('accessToken', token);
 
+            localStorage.setItem('userName', loginData.userName);
+
             // 로그인 성공 후 이동할 페이지로 리다이렉트
             window.location.href = '/'; // 로그인 후 이동할 페이지 URL
         } else {
