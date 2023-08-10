@@ -155,6 +155,7 @@
 <%@ include file="../common/header.jsp" %>
 <h1>채팅 메시지 전송</h1>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.1/sockjs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
 <div id="chatContainer">
     <div id="chatHistory"></div>
     <div id="sendMessageForm">
@@ -164,8 +165,17 @@
 </div>
 
 <script>
+
+    const currentURL = new URL(window.location.href);
+    const chatNo = currentURL.searchParams.get('roomId');
+
     // WebSocket 연결을 위한 변수 선언
-    let ws;
+    let stompClient;
+
+    const headers = {
+        "Authorization": "Bearer " + localStorage.getItem("accessToken"),
+        "chatRoomNo": chatNo
+    };
 
     // WebSocket 연결 함수
     function connectWebSocket() {
@@ -173,27 +183,27 @@
         const wsEndpoint = "http://localhost:8081/chat";
 
         // WebSocket 연결
-        ws = new SockJS(wsEndpoint);
+        const ws = new SockJS(wsEndpoint);
+        stompClient = Stomp.over(ws);
 
-        // WebSocket 연결 이벤트 리스너
-        ws.onopen = function () {
+
+
+        stompClient.connect(headers, function (frame) {
             console.log("WebSocket 연결 성공!");
-        };
-
-        // WebSocket 메시지 수신 이벤트 리스너
-        ws.onmessage = function (event) {
-            const data = JSON.parse(event.data);
-            console.log("WebSocket 메시지 수신:", data);
-        };
-
-        // WebSocket 연결 종료 이벤트 리스너
-        ws.onclose = function () {
-            console.log("WebSocket 연결 종료!");
-        };
+            // 구독 로직 추가
+            stompClient.subscribe("/subscribe/" + chatNo, function (message) {
+                // 구독한 토픽에서 메시지를 받았을 때 실행되는 콜백 함수
+                const data = JSON.parse(message.body);
+                console.log("WebSocket 메시지 수신:", data);
+                // 수신된 메시지를 화면에 표시하는 코드 추가
+                const chatHistoryDiv = document.getElementById("chatHistory");
+                showChatHistory(data, chatHistoryDiv);
+            }, headers);
+        });
     }
-
     // WebSocket 연결
     connectWebSocket();
+
 
     // 메시지 전송 함수
     function sendMessage() {
@@ -209,7 +219,7 @@
         const currentTimeInMillis = new Date().getTime();
 
         // WebSocket을 통해 메시지 전송
-        ws.send(JSON.stringify({
+        stompClient.send("/app/message", headers, JSON.stringify({
             chatNo: chatNo,
             content: content
         }));
@@ -261,8 +271,7 @@
         chatHistoryDiv.appendChild(messageContainer);
     }
 
-    const currentURL = new URL(window.location.href);
-    const chatNo = currentURL.searchParams.get('roomId');
+
     const chatHistoryDiv = document.getElementById("chatHistory"); // chatHistoryDiv 가져오기
     fetchChatHistory(chatNo);
 
@@ -276,7 +285,6 @@
         })
             .then(response => response.json())
             .then(data => {
-                console.log(data.result);
                 const chatHistory = data.result.chatList;
 
                 // 채팅 내역을 순회하며 화면에 표시

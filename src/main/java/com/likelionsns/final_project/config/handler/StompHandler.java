@@ -1,13 +1,17 @@
 package com.likelionsns.final_project.config.handler;
 
+import com.likelionsns.final_project.exception.ErrorCode;
+import com.likelionsns.final_project.exception.SnsAppException;
 import com.likelionsns.final_project.service.ChatRoomService;
 import com.likelionsns.final_project.service.ChatService;
 import com.likelionsns.final_project.utils.JwtUtils;
+import io.jsonwebtoken.MalformedJwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
+import org.springframework.messaging.MessageDeliveryException;
 import org.springframework.stereotype.Component;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
@@ -31,6 +35,7 @@ public class StompHandler implements ChannelInterceptor {
 
     @Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
+        log.info("message : {}", message.toString());
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
         // StompCommand에 따라서 로직을 분기해서 처리하는 메서드를 호출한다.
 //        String userName = verifyAccessToken(getAccessToken(accessor));
@@ -45,17 +50,33 @@ public class StompHandler implements ChannelInterceptor {
             case CONNECT:
                 connectToChatRoom(accessor, userName);
                 break;
-            case SUBSCRIBE:
             case SEND:
                 verifyAccessToken(getAccessToken(accessor));
                 break;
+            case ERROR:
+                throw new MessageDeliveryException("error");
         }
     }
 
     private String getAccessToken(StompHeaderAccessor accessor) {
 
-        String token = accessor.getFirstNativeHeader("Authorization");
-        return Objects.requireNonNull(token).split(" ")[1].trim();
+        String authorizationHeader = accessor.getFirstNativeHeader("Authorization");
+        if (authorizationHeader == null) {
+            log.info("chat header가 없는 요청입니다.");
+            throw new MalformedJwtException("jwt");
+        }
+
+        String token;
+        log.info(authorizationHeader);
+        String authorizationHeaderStr = authorizationHeader.replace("[", "").replace("]", "");
+        if (authorizationHeaderStr.startsWith("Bearer ")) {
+            token = authorizationHeaderStr.replace("Bearer ", "");
+        } else {
+            log.error("Authorization 헤더 형식이 틀립니다. : {}", authorizationHeader);
+            throw new MalformedJwtException("jwt");
+        }
+        log.info("전처리후 token : {}", token);
+        return token;
     }
 
     private void connectToChatRoom(StompHeaderAccessor accessor, String userName) {
@@ -83,10 +104,6 @@ public class StompHandler implements ChannelInterceptor {
     }
 
     private Integer getChatRoomNo(StompHeaderAccessor accessor) {
-        return
-                Integer.valueOf(
-                        Objects.requireNonNull(
-                                accessor.getFirstNativeHeader("chatRoomNo")
-                        ));
+        return Integer.valueOf(accessor.getFirstNativeHeader("chatRoomNo"));
     }
 }

@@ -65,6 +65,7 @@ public class ChatRestController {
     @MessageMapping("/message")
     @SendTo("/publish/message") // 클라이언트가 구독하는 토픽에 메시지를 보냅니다.
     public Message sendMessage(@Payload Message message, @Header("Authorization") final String accessToken) {
+        log.info("웹소켓 send하면 이쪽으로 오나");
         chatService.sendMessage(message, accessToken);
         return message;
     }
