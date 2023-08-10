@@ -187,7 +187,6 @@
         stompClient = Stomp.over(ws);
 
 
-
         stompClient.connect(headers, function (frame) {
             console.log("WebSocket 연결 성공!");
             // 구독 로직 추가
@@ -198,9 +197,28 @@
                 // 수신된 메시지를 화면에 표시하는 코드 추가
                 const chatHistoryDiv = document.getElementById("chatHistory");
                 showChatHistory(data, chatHistoryDiv);
+
+                const notificationPayload = {
+                    content: data.content,
+                    senderName: data.senderName,
+                    chatNo: data.chatNo,
+                    sendTime: data.sendTime,
+                    readCount: data.readCount
+                };
+
+                // HTTP POST 요청을 통해 콜백 엔드포인트 호출
+                fetch("/chatroom/notification", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": "Bearer " + localStorage.getItem("accessToken")
+                    },
+                    body: JSON.stringify(notificationPayload)
+                })
             }, headers);
         });
     }
+
     // WebSocket 연결
     connectWebSocket();
 
@@ -219,35 +237,16 @@
         const currentTimeInMillis = new Date().getTime();
 
         // WebSocket을 통해 메시지 전송
-        stompClient.send("/app/message", headers, JSON.stringify({
+        stompClient.send("/publish/message", headers, JSON.stringify({
             chatNo: chatNo,
-            content: content
+            senderName: null,
+            sendTime: null,
+            content: content,
+            readCount: null
         }));
 
+        document.getElementById("content").value = "";
 
-        // HTTP POST 요청을 통해 콜백 엔드포인트 호출
-        fetch("/chatroom/notification", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": "Bearer " + localStorage.getItem("accessToken")
-            },
-            body: JSON.stringify({
-                content: content,
-                senderName: localStorage.getItem("userName"),
-                chatNo: chatNo, // 채팅방 번호 추가
-                sendTime: currentTimeInMillis.toString(), // 현재 시간을 사용하거나 적절한 방법으로 시간 정보를 추가
-                readCount: 0
-            })
-        })
-            .then(response => response.json())
-            .then(data => {
-                console.log("콜백 데이터 수신:", data)
-                document.getElementById("content").value = "";
-                chatHistoryDiv.innerHTML = "";
-                fetchChatHistory(chatNo);
-            })
-            .catch(error => console.error("콜백 요청 실패:", error));
     }
 
 

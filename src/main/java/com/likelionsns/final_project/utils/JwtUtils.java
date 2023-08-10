@@ -1,9 +1,6 @@
 package com.likelionsns.final_project.utils;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jws;
-import io.jsonwebtoken.JwtParser;
-import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.*;
 
 import java.util.Date;
 
@@ -33,5 +30,15 @@ public class JwtUtils {
     public static String getUserName(String token, String key) {
         return Jwts.parser().setSigningKey(key).parseClaimsJws(token)
                 .getBody().get("userName", String.class);
+    }
+
+    public static String extractToken(String accessToken) {
+        String token;
+        if (accessToken.startsWith("Bearer ")) {
+            token = accessToken.replace("Bearer ", "");
+        } else {
+            throw new MalformedJwtException("jwt");
+        }
+        return token;
     }
 }

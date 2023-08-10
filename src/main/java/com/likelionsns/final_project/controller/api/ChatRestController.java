@@ -16,6 +16,7 @@ import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,6 +29,9 @@ public class ChatRestController {
 
     private final ChatService chatService;
     private final ChatRoomService chatRoomService;
+
+    private final SimpMessagingTemplate messagingTemplate;
+
 
     @PostMapping("/chatroom")
     public ResponseEntity<Response<Chat>> createChatRoom(@RequestBody ChatRequestDto requestDto, Authentication authentication) {
@@ -63,11 +67,11 @@ public class ChatRestController {
 
     // 메세지 전송
     @MessageMapping("/message")
-    @SendTo("/publish/message") // 클라이언트가 구독하는 토픽에 메시지를 보냅니다.
-    public Message sendMessage(@Payload Message message, @Header("Authorization") final String accessToken) {
-        log.info("웹소켓 send하면 이쪽으로 오나");
+    public void sendMessage(@Payload Message message, @Header("Authorization") final String accessToken) {
+        log.info("보낸 메세지 : {}", message.toString());
         chatService.sendMessage(message, accessToken);
-        return message;
+
+        messagingTemplate.convertAndSend("/subscribe/" + message.getChatNo(), message);
     }
 
     // 채팅방 접속 끊기

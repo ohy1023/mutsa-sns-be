@@ -94,9 +94,11 @@ public class ChatService {
 
 
     public void sendMessage(Message message, String accessToken) {
-        // 메시지 전송 요청 헤더에 포함된 AccessToken에서 userName추출해 회원을 조회한다.
-        User user = userRepository.findByUserName(JwtUtils.getUserName(accessToken, secretKey)).orElseThrow(() -> new SnsAppException(USERNAME_NOT_FOUND, USERNAME_NOT_FOUND.getMessage()));
 
+        String token = JwtUtils.extractToken(accessToken);
+
+        // 메시지 전송 요청 헤더에 포함된 AccessToken에서 userName추출해 회원을 조회한다.
+        User user = userRepository.findByUserName(JwtUtils.getUserName(token, secretKey)).orElseThrow(() -> new SnsAppException(USERNAME_NOT_FOUND, USERNAME_NOT_FOUND.getMessage()));
 
         // 채팅방에 모든 유저가 참여중인지 확인한다.
         boolean isConnectedAll = chatRoomService.isAllConnected(message.getChatNo());
@@ -126,7 +128,7 @@ public class ChatService {
         }
 
         // 보낸 사람일 경우에만 메시지를 저장 -> 중복 저장 방지
-        if (message.getSenderName().equals(sender.getUserName())) {
+        if (message.getSenderName().equals(userName)) {
             // Message 객체를 채팅 엔티티로 변환한다.
             Chatting chatting = message.toEntity();
             // 채팅 내용을 저장한다.
