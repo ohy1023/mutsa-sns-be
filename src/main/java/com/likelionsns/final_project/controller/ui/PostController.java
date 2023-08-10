@@ -6,6 +6,7 @@ import com.likelionsns.final_project.service.PostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,10 +20,12 @@ public class PostController {
     private final PostService postService;
 
     @GetMapping("post-list")
-    public String viewPosts(Model model, Pageable pageable) {
+    public String viewPosts(Model model, @PageableDefault(size = 5) Pageable pageable) {
         Page<PostDto> postDtos = postService.getAllItems(pageable);
 
         model.addAttribute("postList", postDtos.getContent());
+        model.addAttribute("totalPages", postDtos.getTotalPages());
+        model.addAttribute("number", postDtos.getNumber());
         return "post/postList";
     }
 
