@@ -4,6 +4,8 @@ import com.likelionsns.final_project.domain.dto.PostDto;
 import com.likelionsns.final_project.domain.request.PostCreateRequest;
 import com.likelionsns.final_project.service.PostService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,7 +19,10 @@ public class PostController {
     private final PostService postService;
 
     @GetMapping("post-list")
-    public String viewPosts() {
+    public String viewPosts(Model model, Pageable pageable) {
+        Page<PostDto> postDtos = postService.getAllItems(pageable);
+
+        model.addAttribute("postList", postDtos.getContent());
         return "post/postList";
     }
 

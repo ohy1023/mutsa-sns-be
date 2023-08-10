@@ -1,4 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -77,89 +78,25 @@
 
 <h1>피드 목록</h1>
 <div id="post-list">
-    <!-- 포스트 목록이 여기에 동적으로 추가됩니다. -->
+    <%-- 포스트 목록을 동적으로 추가합니다. --%>
+    <c:forEach items="${postList}" var="post">
+        <div class="post-item">
+            <p>NO.${post.id}</p>
+            <a href="/post-detail?id=${post.id}" style="text-decoration: none; color: inherit;">
+                <h3>${post.title}</h3>
+            </a>
+            <p>작성자: ${post.userName}</p>
+            <p>작성 시간: ${post.createdAt}</p>
+            <p>${post.body}</p>
+        </div>
+    </c:forEach>
 </div>
 
 <div style="position: fixed; right: 400px; bottom: 750px;">
-    <a class="create-post-button" onclick="goToCreatePost()">글 작성하기</a>
+    <a class="create-post-button" href="/createPost">글 작성하기</a>
 </div>
 
-
 <%@ include file="../common/footer.jsp" %>
-<script>
-    function getAccessToken() {
-        return "Bearer " + localStorage.getItem("accessToken");
-    }
 
-    function createPostLink(post) {
-        const postLink = document.createElement("a");
-        postLink.href = "/post-detail?id=" + post.id; // 상세보기 페이지 URL로 이동
-        postLink.style.textDecoration = "none";
-        postLink.style.color = "inherit";
-
-        const postTitle = document.createElement("h3");
-        postTitle.textContent = post.title;
-        postLink.appendChild(postTitle);
-
-        return postLink;
-    }
-
-    function renderPostList(posts) {
-        const postListContainer = document.getElementById("post-list");
-        postListContainer.innerHTML = "";
-
-        posts.forEach(post => {
-            const postItem = document.createElement("div");
-            postItem.classList.add("post-item");
-
-            const postNumber = document.createElement("p");
-            postNumber.textContent = "NO." + post.id;
-
-            // 포스트 상세보기 페이지로 넘어가는 링크 추가
-            const postLink = createPostLink(post);
-
-            const postAuthor = document.createElement("p");
-            postAuthor.textContent = "작성자: " + post.userName;
-
-            const postCreatedAt = document.createElement("p");
-            postCreatedAt.textContent = "작성 시간: " + post.createdAt;
-
-            const postBody = document.createElement("p");
-            postBody.textContent = post.body;
-
-            postItem.appendChild(postNumber);
-            postItem.appendChild(postLink);
-            postItem.appendChild(postAuthor);
-            postItem.appendChild(postCreatedAt);
-            postItem.appendChild(postBody);
-            postListContainer.appendChild(postItem);
-        });
-    }
-
-
-    function fetchPosts() {
-        fetch("/api/v1/posts", {
-            headers: {
-                "Authorization": getAccessToken()
-            }
-        })
-            .then(response => response.json())
-            .then(data => {
-                renderPostList(data.result.content);
-            })
-            .catch(error => {
-                console.error("Error fetching posts:", error);
-            });
-    }
-
-    function goToCreatePost() {
-        window.location.href = "/createPost"; // 여기에 글 작성하기 화면 URL로 이동할 경로를 넣으세요.
-    }
-
-    document.addEventListener("DOMContentLoaded", function () {
-        // 페이지 로딩 시 포스트 목록을 불러와서 렌더링합니다.
-        fetchPosts();
-    });
-</script>
 </body>
 </html>

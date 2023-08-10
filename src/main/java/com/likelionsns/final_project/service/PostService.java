@@ -27,7 +27,6 @@ public class PostService {
     private final PostRepository postRepository;
     private final LikeRepository likeRepository;
     private final CommentRepository commentRepository;
-    private final AlarmRepository alarmRepository;
 
     @Transactional
     public PostDto createPost(PostCreateRequest postCreateRequest, String userName) {
