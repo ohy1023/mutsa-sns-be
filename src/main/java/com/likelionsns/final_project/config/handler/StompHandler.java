@@ -1,7 +1,5 @@
 package com.likelionsns.final_project.config.handler;
 
-import com.likelionsns.final_project.exception.ErrorCode;
-import com.likelionsns.final_project.exception.SnsAppException;
 import com.likelionsns.final_project.service.ChatRoomService;
 import com.likelionsns.final_project.service.ChatService;
 import com.likelionsns.final_project.utils.JwtUtils;
@@ -19,12 +17,11 @@ import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
 
-import java.util.Objects;
 
-@Order(Ordered.HIGHEST_PRECEDENCE + 99) // 우선 순위를 높게 설정해서 SecurityFilter들 보다 앞서 실행되게 해준다.
+@Slf4j
 @Component
 @RequiredArgsConstructor
-@Slf4j
+@Order(Ordered.HIGHEST_PRECEDENCE + 99) // 우선 순위를 높게 설정해서 SecurityFilter들 보다 앞서 실행되게 해준다.
 public class StompHandler implements ChannelInterceptor {
 
     private final ChatRoomService chatRoomService;
@@ -37,10 +34,9 @@ public class StompHandler implements ChannelInterceptor {
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
         log.info("message : {}", message.toString());
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
+        String userName = verifyAccessToken(getAccessToken(accessor));
         // StompCommand에 따라서 로직을 분기해서 처리하는 메서드를 호출한다.
-//        String userName = verifyAccessToken(getAccessToken(accessor));
-        String userName = JwtUtils.getUserName(getAccessToken(accessor), secretKey);
-        handleMessage(Objects.requireNonNull(accessor.getCommand()), accessor, userName);
+        handleMessage(accessor.getCommand(), accessor, userName);
         return message;
     }
 

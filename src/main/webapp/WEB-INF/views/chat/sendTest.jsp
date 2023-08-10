@@ -161,6 +161,7 @@
     <div id="sendMessageForm">
         <input type="text" id="content" name="content" required placeholder="메시지를 입력하세요">
         <button type="button" id="sendButton" onclick="sendMessage()">전송</button>
+        <button type="button" id="exitButton" onclick="exitChatRoom()">채팅방 나가기</button>
     </div>
 </div>
 
@@ -293,6 +294,36 @@
             })
             .catch(error => {
                 console.error("Error fetching chat history:", error);
+            });
+    }
+
+    function exitChatRoom() {
+        // 채팅방 나가기 API 호출
+        const userName = localStorage.getItem("userName");
+
+        const queryParams = new URLSearchParams();
+        queryParams.append("userName", userName); // userName 파라미터 추가
+
+        console.log(queryParams.toString());
+
+        fetch("/chatroom/" + chatNo + "?" + queryParams.toString(), {
+            method: "POST",
+            headers: {
+                "Authorization": "Bearer " + localStorage.getItem("accessToken")
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                // API 호출이 성공한 경우, /chats 페이지로 리디렉션
+                if (data.resultCode === "SUCCESS") {
+                    window.location.href = "/myChat"; // 적절한 리디렉션 경로로 변경
+                } else {
+                    console.error("채팅방 나가기 실패:", data.error);
+                }
+            })
+            .catch(error => {
+                console.error("채팅방 나가기 도중 에러:", error);
             });
     }
 </script>

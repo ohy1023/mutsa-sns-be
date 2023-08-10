@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 
 @Slf4j
@@ -20,9 +21,11 @@ public class ChatRoomService {
     @Transactional
     public void connectChatRoom(Integer chatRoomNo, String userName) {
         ChatRoom chatRoom = ChatRoom.builder()
-                        .userName(userName)
-                        .chatroomNo(chatRoomNo)
-                        .build();
+                .userName(userName)
+                .chatroomNo(chatRoomNo)
+                .build();
+
+        log.info("add redis : {}", chatRoom.getUserName());
 
         chatRoomRepository.save(chatRoom);
     }
@@ -30,7 +33,9 @@ public class ChatRoomService {
     @Transactional
     public void disconnectChatRoom(Integer chatRoomNo, String userName) {
         ChatRoom chatRoom = chatRoomRepository.findByChatroomNoAndUserName(chatRoomNo, userName)
-                        .orElseThrow(IllegalStateException::new);
+                .orElseThrow(IllegalStateException::new);
+
+        log.info("delete redis : {}", chatRoom.getUserName());
 
         chatRoomRepository.delete(chatRoom);
     }
