@@ -183,6 +183,7 @@ public class ChatService {
         try {
             return mongoTemplate.findOne(query, Chatting.class).getContent();
         } catch (Exception e) {
+            log.info(e.getMessage());
             return "";
         }
 

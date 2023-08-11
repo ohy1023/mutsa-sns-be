@@ -8,6 +8,7 @@ import com.likelionsns.final_project.domain.response.MyChatRoomResponse;
 import com.likelionsns.final_project.domain.response.Response;
 import com.likelionsns.final_project.service.ChatRoomService;
 import com.likelionsns.final_project.service.ChatService;
+import com.likelionsns.final_project.service.MessageReceiver;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -30,8 +31,7 @@ public class ChatRestController {
     private final ChatService chatService;
     private final ChatRoomService chatRoomService;
 
-    private final SimpMessagingTemplate messagingTemplate;
-
+    private final MessageReceiver receiver;
 
     @PostMapping("/chatroom")
     public ResponseEntity<Response<Chat>> createChatRoom(@RequestBody ChatRequestDto requestDto, Authentication authentication) {
@@ -67,11 +67,9 @@ public class ChatRestController {
 
     // 메세지 전송
     @MessageMapping("/message")
-    public void sendMessage(@Payload Message message, @Header("Authorization") final String accessToken) {
+    public void sendMessage(Message message, @Header("Authorization") final String accessToken) {
         log.info("보낸 메세지 : {}", message.toString());
         chatService.sendMessage(message, accessToken);
-
-        messagingTemplate.convertAndSend("/subscribe/" + message.getChatNo(), message);
     }
 
     // 채팅방 접속 끊기
