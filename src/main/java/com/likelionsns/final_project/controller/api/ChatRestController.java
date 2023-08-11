@@ -78,6 +78,7 @@ public class ChatRestController {
                                                            @RequestParam("userName") String userName) {
 
         chatRoomService.disconnectChatRoom(chatroomNo, userName);
+        chatService.leaveMessage(userName, chatroomNo);
         return ResponseEntity.ok(Response.success("접속 끊기"));
     }
 

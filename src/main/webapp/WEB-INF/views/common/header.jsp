@@ -104,6 +104,7 @@
 
         function logout() {
             localStorage.removeItem('accessToken');
+            localStorage.removeItem('userName');
             window.location.reload();
         }
 

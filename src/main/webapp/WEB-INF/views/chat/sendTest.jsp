@@ -89,7 +89,7 @@
             border: 1px solid #ddd;
             border-radius: 5px;
             box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
-            overflow-y: scroll; /* 스크롤이 생길 경우 자동으로 스크롤바가 생성됨 */
+            overflow-y: scroll;
         }
 
         #chatHistory {
@@ -149,6 +149,38 @@
         .myMessageBubble {
             background-color: #67d66d;
         }
+
+        #noticeContainer {
+            padding: 10px;
+            background-color: #fffdb3;
+            border: 1px solid #ff004d;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            text-align: center; /* 텍스트 가운데 정렬 추가 */
+            position: relative; /* 포지션 속성 추가 */
+        }
+
+        #noticeBox {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+            background-color: #fffdb3;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+
+        #noticeText {
+            font-weight: bold;
+            color: #0a0a07;
+            margin-top: -55px; /* '알림' 텍스트 위로 이동 */
+            margin-left: -15px; /* '알림' 텍스트 왼쪽으로 이동 */
+        }
+
+        #noticeContent {
+            flex: 1;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -157,6 +189,14 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.1/sockjs.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
 <div id="chatContainer">
+    <div id="noticeContainer">
+        <div id="noticeBox">
+            <span id="noticeText">알림</span>
+            <div id="noticeContent">
+                <span id="noticeTextContent"></span>
+            </div>
+        </div>
+    </div>
     <div id="chatHistory"></div>
     <div id="sendMessageForm">
         <input type="text" id="content" name="content" required placeholder="메시지를 입력하세요">
@@ -166,6 +206,7 @@
 </div>
 
 <script>
+    let noticeHideTimer;
 
     const currentURL = new URL(window.location.href);
     const chatNo = currentURL.searchParams.get('roomId');
@@ -196,32 +237,58 @@
                 const data = JSON.parse(message.body);
                 console.log("WebSocket 메시지 수신:", data);
                 // 수신된 메시지를 화면에 표시하는 코드 추가
+
                 const chatHistoryDiv = document.getElementById("chatHistory");
-                showChatHistory(data, chatHistoryDiv);
 
-                const notificationPayload = {
-                    content: data.content,
-                    senderName: data.senderName,
-                    chatNo: data.chatNo,
-                    sendTime: data.sendTime,
-                    readCount: data.readCount
-                };
+                // 공지 메시지 처리
+                if (data.senderName === "notice") {
+                    showNotice(data.content);
+                } else {
+                    showChatHistory(data, chatHistoryDiv);
 
-                // HTTP POST 요청을 통해 콜백 엔드포인트 호출
-                fetch("/chatroom/notification", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "Authorization": "Bearer " + localStorage.getItem("accessToken")
-                    },
-                    body: JSON.stringify(notificationPayload)
-                })
+                    const notificationPayload = {
+                        content: data.content,
+                        senderName: data.senderName,
+                        chatNo: data.chatNo,
+                        sendTime: data.sendTime,
+                        readCount: data.readCount
+                    };
+
+                    // HTTP POST 요청을 통해 콜백 엔드포인트 호출
+                    fetch("/chatroom/notification", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": "Bearer " + localStorage.getItem("accessToken")
+                        },
+                        body: JSON.stringify(notificationPayload)
+                    })
+                }
             }, headers);
         });
     }
 
     // WebSocket 연결
     connectWebSocket();
+
+    // 공지 메시지 표시 함수
+    function showNotice(content) {
+        const noticeDiv = document.createElement("div");
+        noticeDiv.classList.add("notice");
+
+        const noticeBubble = document.createElement("div");
+        noticeBubble.classList.add("noticeBubble");
+        noticeBubble.textContent = content;
+
+        noticeDiv.appendChild(noticeBubble);
+        const noticeContainer = document.getElementById("noticeContainer");
+        noticeContainer.appendChild(noticeDiv);
+
+        // 5초 후에 공지 메시지 숨기기
+        noticeHideTimer = setTimeout(() => {
+            noticeDiv.remove();
+        }, 5000);
+    }
 
 
     // 메시지 전송 함수
@@ -235,7 +302,6 @@
         // roomId 매개변수 값 가져오기
         const chatNo = searchParams.get('roomId');
         const content = document.getElementById("content").value;
-        const currentTimeInMillis = new Date().getTime();
 
         // WebSocket을 통해 메시지 전송
         stompClient.send("/publish/message", headers, JSON.stringify({

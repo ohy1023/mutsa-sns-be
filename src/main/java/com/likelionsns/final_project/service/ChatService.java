@@ -151,7 +151,21 @@ public class ChatService {
 
 
     public void updateMessage(String userName, Integer chatRoomNo) {
-        Message message = Message.builder().chatNo(chatRoomNo).content(userName + "님이 돌아오셨습니다.").build();
+        Message message = Message.builder()
+                .chatNo(chatRoomNo)
+                .content(userName + "님이 돌아오셨습니다.")
+                .senderName("notice")
+                .build();
+
+        sender.send(KAFKA_TOPIC, message);
+    }
+
+    public void leaveMessage(String userName, Integer chatRoomNo) {
+        Message message = Message.builder()
+                .chatNo(chatRoomNo)
+                .content(userName + "님이 방을 나갔습니다.")
+                .senderName("notice")
+                .build();
 
         sender.send(KAFKA_TOPIC, message);
     }
