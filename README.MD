@@ -10,13 +10,14 @@
 - 댓글 CRUD
 - 좋아요 기능
 - 알림 기능
+- JSP를 활용한 UI
 
 ### ✔ 기술 스택
 
-- backend : java, spring boot, JPA, spring security
+- frontend : JSP
+- backend : java, spring boot, JPA, spring security, KAFKA
 - Database : MYSQL, Redis, MongoDB
 - CI/CD : gitlab
-- ETC : KAFKA
 
 ### ✔ ERD
 
