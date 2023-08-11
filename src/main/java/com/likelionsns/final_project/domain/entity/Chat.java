@@ -30,10 +30,12 @@ public class Chat {
     private LocalDateTime regDate;
 
 
-    public MyChatRoomResponse toResponse(User user) {
+    public MyChatRoomResponse toResponse(User user, Long cnt, String message) {
         return MyChatRoomResponse.builder()
                 .chatRoomId(this.chatNo)
                 .joinUserName(user.getUserName())
+                .notReadMessageCnt(cnt)
+                .lastContent(message)
                 .build();
     }
 

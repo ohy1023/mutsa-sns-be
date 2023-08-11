@@ -56,6 +56,11 @@
         .room-actions {
             text-align: right;
         }
+
+        .not-read {
+            color: red;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -87,7 +92,22 @@
                     li.className = "chat-room";
 
                     const roomDetails = document.createElement("span");
-                    roomDetails.textContent = 'NO.' + chatRoom.chatRoomId + ' - 참가자: ' + chatRoom.joinUserName;
+                    roomDetails.textContent = `NO.` + chatRoom.chatRoomId + ` - 참가자 : ` + chatRoom.joinUserName;
+
+                    const notReadSpan = document.createElement("span");
+                    notReadSpan.className = "not-read";
+                    notReadSpan.textContent = " 읽지 않은 메세지 : " + chatRoom.notReadMessageCnt;
+                    roomDetails.appendChild(notReadSpan);
+
+                    if (chatRoom.lastContent) {
+                        const lastContentSpan = document.createElement("span");
+                        lastContentSpan.textContent = " 마지막 메세지 - " + chatRoom.lastContent;
+                        roomDetails.appendChild(lastContentSpan);
+                    } else {
+                        const lastContentSpan = document.createElement("span");
+                        lastContentSpan.textContent = ` 아무런 대화도 없었습니다.`;
+                        roomDetails.appendChild(lastContentSpan);
+                    }
 
                     const roomLink = document.createElement("a");
                     roomLink.className = "room-link";

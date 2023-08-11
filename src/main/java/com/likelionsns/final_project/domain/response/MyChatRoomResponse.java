@@ -12,5 +12,10 @@ import lombok.NoArgsConstructor;
 public class MyChatRoomResponse {
 
     private Integer chatRoomId;
+
     private String joinUserName;
+
+    private Long notReadMessageCnt;
+
+    private String lastContent;
 }
