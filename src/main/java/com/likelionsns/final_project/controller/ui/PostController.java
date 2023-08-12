@@ -21,7 +21,7 @@ public class PostController {
 
     @GetMapping("post-list")
     public String viewPosts(Model model, @PageableDefault(size = 5) Pageable pageable) {
-        Page<PostDto> postDtos = postService.getAllItems(pageable);
+        Page<PostDto> postDtos = postService.getAllPost(pageable);
 
         model.addAttribute("postList", postDtos.getContent());
         model.addAttribute("totalPages", postDtos.getTotalPages());

@@ -48,7 +48,7 @@ public class PostRestController {
     @GetMapping
     public ResponseEntity<Response<Page<PostDto>>> getPostList(@PageableDefault(size = 20)
                                                                @SortDefault(sort = "registeredAt", direction = Sort.Direction.DESC) Pageable pageable) {
-        Page<PostDto> postDtos = postService.getAllItems(pageable);
+        Page<PostDto> postDtos = postService.getAllPost(pageable);
         return ResponseEntity.ok().body(Response.success(postDtos));
     }
 
@@ -72,6 +72,16 @@ public class PostRestController {
                                                              @SortDefault(sort = "registeredAt", direction = Sort.Direction.DESC) Pageable pageable, Authentication authentication) {
         Page<PostDto> myPosts = postService.getMyPost(pageable, authentication.getName());
         return ResponseEntity.accepted().body(Response.success(myPosts));
+    }
+
+    @ApiOperation(value = "삭제된 피드 목록", notes = "삭제 된 포스트 목록")
+    @GetMapping("/deleted")
+    public Response<Page<PostDto>> getDeletedPost(@PageableDefault(size = 20)
+                                                  @SortDefault(sort = "deletedAt", direction = Sort.Direction.DESC) Pageable pageable, Authentication authentication) {
+        String userName = authentication.getName();
+        Page<PostDto> deletedPosts = postService.getAllDeletedPost(pageable, userName);
+
+        return Response.success(deletedPosts);
     }
 
     @ApiOperation(value = "댓글 작성")
