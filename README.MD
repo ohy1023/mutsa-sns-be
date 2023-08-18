@@ -22,11 +22,7 @@
 
 ### ✔ ERD
 
-
-
-<img src="./ERD.png">
-
-
+![img.png](erd.png)
 
 ### ✔ Front
 
@@ -40,7 +36,7 @@
 
 #### 채팅 화면
  
-![](../../Downloads/unknown_2023.08.18-19.48.gif)
+![chat.gif](chat.gif)
 
 ### ✔ API 명세서
 
