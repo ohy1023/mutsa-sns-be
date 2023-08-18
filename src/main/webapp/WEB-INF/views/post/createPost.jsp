@@ -85,7 +85,7 @@
 
         const createPostData = {
             title: document.getElementById("postTitle").value,
-            content: document.getElementById("postBody").value,
+            body: document.getElementById("postBody").value,
         }
 
         const requestBody = JSON.stringify(createPostData);

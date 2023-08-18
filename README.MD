@@ -15,16 +15,34 @@
 
 ### ✔ 기술 스택
 
-- frontend : JSP
+- frontend : HTML/CSS, JSP, Java Script
 - backend : java, spring boot, JPA, spring security, KAFKA
 - Database : MYSQL, Redis, MongoDB
 - CI/CD : gitlab
 
 ### ✔ ERD
 
+
+
 <img src="./ERD.png">
 
-### ✔ Endpoint
+
+
+### ✔ Front
+
+#### home 화면
+
+![img.png](img.png)
+
+### 포스트 화면
+
+![img_1.png](img_1.png)
+
+#### 채팅 화면
+ 
+![](../../Downloads/unknown_2023.08.18-19.48.gif)
+
+### ✔ API 명세서
 
 - [Swagger](http://ec2-54-180-83-38.ap-northeast-2.compute.amazonaws.com:8080/swagger-ui/index.html#/)
 
