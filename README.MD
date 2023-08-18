@@ -52,3 +52,11 @@
 |          | GET    | /chatroom/{charoomNo}               | 해당 채팅방 연결 끊기      | 권한 필요                     |
 |          | GET    | /chatroom/{roomNo}                  | 해당 채팅방 채팅 전체 조회   | 권한 필요                     |
 |          | GET    | /chatroom/my-chatroom               | 참여중인 채팅방 조회       | 권한 필요                     |
+|          |        |                                     |                   |                           |
+
+
+## Trouble Shooting 🚧
+
+[JPA Soft Delete 간단하게 적용하기](https://velog.io/@zvyg1023/Spring-Boot-JPA-Soft-Delete)
+
+[SoftDelete 적용 후 @Where 절로 인해 삭제된 포스트 목록 조회 불가능한 이슈](https://velog.io/@zvyg1023/Spring-Boot-SoftDelete-%EC%A0%81%EC%9A%A9-%ED%9B%84-Where-%EC%A0%88%EB%A1%9C-%EC%9D%B8%ED%95%B4-%EC%82%AD%EC%A0%9C%EB%90%9C-%ED%8F%AC%EC%8A%A4%ED%8A%B8-%EB%AA%A9%EB%A1%9D-%EC%A1%B0%ED%9A%8C-%EB%B6%88%EA%B0%80%EB%8A%A5%ED%95%9C-%EC%9D%B4%EC%8A%88)
