@@ -73,6 +73,8 @@
     <button id="like-button" data-is-liked="false">좋아요</button>
     <p id="post-comment-count"></p>
 
+    <div id="action-buttons"></div>
+
     <div class="comment-input">
         <input type="text" id="comment-input" placeholder="댓글을 입력하세요">
         <button onclick="addComment('<%=request.getParameter("id")%>')">등록</button>
@@ -98,13 +100,45 @@
         const postLikeCount = document.getElementById("post-like-count");
         const postCommentCount = document.getElementById("post-comment-count");
 
-
         postTitle.textContent = post.title;
         postAuthor.textContent = "작성자: " + post.userName;
         postCreatedAt.textContent = "작성 시간: " + post.createdAt;
         postBody.textContent = post.body;
         postLikeCount.textContent = "좋아요 개수: " + post.likeCnt;
         postCommentCount.textContent = "총 댓글 개수: " + post.commentCnt;
+
+        // 작성자가 localstorage에 있는 userName과 같다면 수정하기, 삭제하기 버튼 추가
+        const actionButtons = document.getElementById("action-buttons");
+        const loggedInUserName = localStorage.getItem("userName");
+
+        if (post.userName === loggedInUserName) {
+            const editButton = document.createElement("button");
+            editButton.textContent = "수정하기";
+            editButton.onclick = function () {
+                goEditPost(post.id);
+            };
+
+            const deleteButton = document.createElement("button");
+            deleteButton.textContent = "삭제하기";
+            deleteButton.onclick = function () {
+                // 삭제하기 버튼 클릭 시 동작
+                if (confirm("정말 삭제하시겠습니까?")) {
+                    deletePost(post.id);
+                }
+            };
+
+            actionButtons.appendChild(editButton);
+            actionButtons.appendChild(deleteButton);
+        } else {
+            const chatButton = document.createElement("button");
+            chatButton.textContent = "채팅하기";
+            chatButton.onclick = function () {
+                // 채팅하기 버튼 클릭 시 동작
+                createChatRoom(post.userName);
+            };
+
+            actionButtons.appendChild(chatButton);
+        }
     }
 
     function renderComment(comments) {
@@ -166,8 +200,6 @@
         const commentInput = document.getElementById("comment-input");
         const commentText = commentInput.value;
 
-        // 서버에 댓글 추가 요청을 보내고, 성공하면 댓글 목록을 다시 불러옵니다.
-        // (댓글 추가 요청을 보내는 방식은 서버와의 API에 따라 달라질 수 있습니다.)
         fetch("/api/v1/posts/" + postId + "/comments", {
             method: "POST",
             headers: {
@@ -178,15 +210,39 @@
         })
             .then(response => response.json())
             .then(data => {
-                // 댓글 추가 성공시 댓글 목록을 다시 불러옵니다.
                 fetchComment(postId);
             })
             .catch(error => {
                 console.error("Error adding comment:", error);
             });
 
-        // 댓글 입력창 비우기
         commentInput.value = "";
+    }
+
+    function goEditPost(postId) {
+        window.location.href = '/post-update?id=' + postId;
+    }
+
+    function deletePost(postId) {
+        fetch("/api/v1/posts/" + postId, {
+            method: "DELETE",
+            headers: {
+                "Authorization": getAccessToken(),
+                "Content-Type": "application/json"
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.resultCode === "SUCCESS") {
+                    alert("게시글이 삭제되었습니다.");
+                    window.location.href = "/post-list";
+                } else {
+                    alert("게시글 삭제에 실패했습니다.");
+                }
+            })
+            .catch(error => {
+                console.error("Error deleting post:", error);
+            });
     }
 
     function handleLike(postId) {
@@ -204,7 +260,6 @@
         })
             .then(response => response.json())
             .then(data => {
-                // 요청에 성공했을 때 처리할 내용
                 if (isLiked) {
                     likeButton.dataset.isLiked = "false";
                     likeButton.textContent = "좋아요";
@@ -225,12 +280,52 @@
         fetchPostDetail(postId);
         fetchComment(postId);
 
-        // 좋아요 버튼에 클릭 이벤트 추가
         const likeButton = document.getElementById("like-button");
         likeButton.addEventListener("click", function () {
             handleLike(postId);
         });
     });
+
+
+    function getAccessToken() {
+        // 로컬 스토리지에서 토큰을 가져오기
+        return "Bearer " + localStorage.getItem("accessToken");
+    }
+
+    async function createChatRoom(userName) {
+
+        const createChatData = {
+            joinUserName: userName,
+        }
+
+        const requestBody = JSON.stringify(createChatData);
+
+        try {
+            const response = await fetch("/chatroom", {
+                method: "POST",
+                headers: {
+                    "Authorization": getAccessToken(),
+                    "Content-Type": "application/json"
+                },
+                body: requestBody
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                const chatNo = data.result.chatNo;
+                const code = data.resultCode;
+                alert("채팅방 " + chatNo + "번 생성 " + code);
+                window.location.href = `/sendTest?roomId=` + chatNo;
+
+            } else {
+                alert("채팅방 생성 실패");
+            }
+        } catch (error) {
+            console.error("채팅방 생성 오류:", error);
+            alert("채팅방 생성 중 오류가 발생했습니다.");
+        }
+    }
+
 </script>
 </body>
 </html>

@@ -34,6 +34,11 @@ public class PostController {
         return "post/postDetail";
     }
 
+    @GetMapping("post-update")
+    public String updatePost(@RequestParam Integer id) {
+        return "post/editPost";
+    }
+
     // 글 작성 페이지로 이동
     @GetMapping("/createPost")
     public String showCreatePostPage() {

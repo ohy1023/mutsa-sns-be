@@ -23,15 +23,22 @@ public class SecurityConfig {
     @Value("${jwt.secret}")
     private String secretKey;
 
+    private final String[] UI_PATH = {
+            // ui
+            "/login",
+            "/join",
+            "/my-posts"
+    };
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         return httpSecurity
                 .httpBasic().disable()
                 .csrf().disable()
                 .cors().and()
-//                .headers(headers -> headers.permissionsPolicy(policy -> policy.policy("browsing-topics=(self)")))
                 .authorizeHttpRequests()
                 .antMatchers("/index.jsp").permitAll()
+                .antMatchers(UI_PATH).permitAll()
                 .antMatchers(HttpMethod.GET, "api/v1/posts/**").permitAll()
                 .antMatchers(HttpMethod.GET, "api/v1/**").authenticated()
                 .antMatchers(HttpMethod.POST, "/api/v1/users/join", "/api/v1/users/login").permitAll()

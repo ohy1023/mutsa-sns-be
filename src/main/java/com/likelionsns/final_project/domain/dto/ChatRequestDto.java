@@ -8,5 +8,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ChatRequestDto {
-    private Integer joinUserId;
+    private String joinUserName;
 }

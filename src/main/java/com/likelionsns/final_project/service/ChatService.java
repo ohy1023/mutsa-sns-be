@@ -60,13 +60,15 @@ public class ChatService {
     public Chat makeChatRoom(String userName, ChatRequestDto requestDto) {
 
         User findUser = userRepository.findByUserName(userName).orElseThrow(() -> new SnsAppException(USERNAME_NOT_FOUND, USERNAME_NOT_FOUND.getMessage()));
+        User joinUser = userRepository.findByUserName(requestDto.getJoinUserName()).orElseThrow(() -> new SnsAppException(USERNAME_NOT_FOUND, USERNAME_NOT_FOUND.getMessage()));
 
-        chatRepository.findActiveChat(findUser.getId(), requestDto.getJoinUserId())
+
+        chatRepository.findActiveChat(findUser.getId(), joinUser.getId())
                 .ifPresent(chat -> {
                     throw new SnsAppException(ALREADY_CHAT_ROOM, ALREADY_CHAT_ROOM.getMessage());
                 });
 
-        Chat chat = Chat.builder().createUser(findUser.getId()).joinUser(requestDto.getJoinUserId()).regDate(LocalDateTime.now()).build();
+        Chat chat = Chat.builder().createUser(findUser.getId()).joinUser(joinUser.getId()).regDate(LocalDateTime.now()).build();
 
         return chatRepository.save(chat);
     }

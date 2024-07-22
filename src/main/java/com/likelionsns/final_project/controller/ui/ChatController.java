@@ -7,11 +7,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Controller
 public class ChatController {
 
-    @GetMapping("/createChatRoom")
-    public String createChatRoom() {
-        return "chat/createChatRoom";
-    }
-
     @GetMapping("/sendTest")
     public String sendTest(@RequestParam Integer roomId) {
         return "chat/sendTest";
