@@ -34,9 +34,17 @@ public class StompHandler implements ChannelInterceptor {
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
         log.info("message : {}", message.toString());
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
+
+        if (StompCommand.DISCONNECT.equals(accessor.getCommand())) {
+            // Disconnect 시에는 토큰 검사를 하지 않도록 처리
+            log.info("DISCONNECT command received, skipping token verification.");
+            return message;
+        }
+
         String userName = verifyAccessToken(getAccessToken(accessor));
         // StompCommand에 따라서 로직을 분기해서 처리하는 메서드를 호출한다.
         handleMessage(accessor.getCommand(), accessor, userName);
+
         return message;
     }
 
@@ -45,9 +53,6 @@ public class StompHandler implements ChannelInterceptor {
 
             case CONNECT:
                 connectToChatRoom(accessor, userName);
-                break;
-            case SEND:
-                verifyAccessToken(getAccessToken(accessor));
                 break;
             case ERROR:
                 throw new MessageDeliveryException("error");

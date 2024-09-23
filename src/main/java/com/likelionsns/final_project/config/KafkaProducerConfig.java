@@ -16,7 +16,7 @@ import java.util.Map;
 
 @EnableKafka
 @Configuration
-public class ProducerConfiguration {
+public class KafkaProducerConfig {
 
     // Kafka ProducerFactory를 생성하는 Bean 메서드
     @Bean

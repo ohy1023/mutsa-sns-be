@@ -363,35 +363,23 @@
             });
     }
 
+
     function exitChatRoom() {
-        // 채팅방 나가기 API 호출
-        const userName = localStorage.getItem("userName");
 
-        const queryParams = new URLSearchParams();
-        queryParams.append("userName", userName); // userName 파라미터 추가
+        // Authorization 헤더와 함께 STOMP 메시지를 서버로 전송
+        stompClient.send("/publish/chatroom/leave", {
+            "Authorization": "Bearer " + localStorage.getItem("accessToken") // 헤더에 JWT 토큰을 추가
+        }, JSON.stringify({
+            chatNo: chatNo,  // 채팅방 번호
+            userName: localStorage.getItem("userName") // 로컬 스토리지에서 가져온 사용자 이름
+        }));
 
-        console.log(queryParams.toString());
+        stompClient.disconnect(function() {
+            console.log("Disconnected from the server");
+        });
 
-        fetch("/chatroom/" + chatNo + "?" + queryParams.toString(), {
-            method: "POST",
-            headers: {
-                "Authorization": "Bearer " + localStorage.getItem("accessToken")
-            }
-        })
-            .then(response => response.json())
-            .then(data => {
-                console.log(data);
-                // API 호출이 성공한 경우, /chats 페이지로 리디렉션
-                if (data.resultCode === "SUCCESS") {
-                    window.location.href = "/myChat"; // 적절한 리디렉션 경로로 변경
-                } else {
-                    console.error("채팅방 나가기 실패:", data.error);
-                }
-            })
-            .catch(error => {
-                console.error("채팅방 나가기 도중 에러:", error);
-            });
     }
+
 </script>
 </body>
 </html>

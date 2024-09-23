@@ -1,4 +1,4 @@
 spring:
   redis:
-    host: localhost
-    port: 6379
+    host: ${REDIS_HOST:localhost}  # 환경 변수 REDIS_HOST 사용, 없으면 기본값 localhost
+    port: ${REDIS_PORT:6379}       # 환경 변수 REDIS_PORT 사용, 없으면 기본값 6379

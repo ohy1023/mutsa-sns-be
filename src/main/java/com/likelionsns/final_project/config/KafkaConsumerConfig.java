@@ -16,7 +16,7 @@ import java.util.Map;
 
 @EnableKafka
 @Configuration
-public class ListenerConfiguration {
+public class KafkaConsumerConfig {
 
     // KafkaListener 컨테이너 팩토리를 생성하는 Bean 메서드
     @Bean
@@ -29,19 +29,20 @@ public class ListenerConfiguration {
     // Kafka ConsumerFactory를 생성하는 Bean 메서드
     @Bean
     public ConsumerFactory<String, Message> consumerFactory() {
-        JsonDeserializer<Message> deserializer = new JsonDeserializer<>();
-        // 패키지 신뢰 오류로 인해 모든 패키지를 신뢰하도록 작성
-        deserializer.addTrustedPackages("*");
 
         // Kafka Consumer 구성을 위한 설정값들을 설정 -> 변하지 않는 값이므로 ImmutableMap을 이용하여 설정
         Map<String, Object> consumerConfigurations =
                 ImmutableMap.<String, Object>builder()
                         .put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092")
-                        .put(ConsumerConfig.GROUP_ID_CONFIG, "adopt")
+                        .put(ConsumerConfig.GROUP_ID_CONFIG, "Mutsa-Sns")
                         .put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class)
-                        .put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, deserializer)
-                        .put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest")
+                        .put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class)
                         .build();
+
+        // 들어오는 Message 를 객체로 받기 위한 deserializer
+        JsonDeserializer<Message> deserializer = new JsonDeserializer<>();
+
+        deserializer.addTrustedPackages("com.likelionsns.final_project.domain.dto");
 
         return new DefaultKafkaConsumerFactory<>(consumerConfigurations, new StringDeserializer(), deserializer);
     }

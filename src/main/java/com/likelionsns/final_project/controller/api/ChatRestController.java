@@ -3,6 +3,7 @@ package com.likelionsns.final_project.controller.api;
 import com.likelionsns.final_project.domain.dto.ChatRequestDto;
 import com.likelionsns.final_project.domain.dto.Message;
 import com.likelionsns.final_project.domain.entity.Chat;
+import com.likelionsns.final_project.domain.request.LeaveRequest;
 import com.likelionsns.final_project.domain.response.ChattingHistoryResponseDto;
 import com.likelionsns.final_project.domain.response.MyChatRoomResponse;
 import com.likelionsns.final_project.domain.response.Response;
@@ -82,6 +83,18 @@ public class ChatRestController {
         return ResponseEntity.ok(Response.success("접속 끊기"));
     }
 
+    @MessageMapping("/chatroom/leave")
+    public void leaveChatRoom(@Payload LeaveRequest leaveRequest, @Header("Authorization") final String accessToken) {
+
+        int leaveChatRoomNo = leaveRequest.getChatNo();
+        String leaveUserName = leaveRequest.getUserName();
+        log.info("나가려는 채팅 방 : {}", leaveChatRoomNo);
+        log.info("나가는 사람 : {}", leaveUserName);
+
+        // 채팅방 나가기 로직 처리
+        chatRoomService.disconnectChatRoom(leaveChatRoomNo, leaveUserName);
+        chatService.leaveMessage(leaveUserName, leaveChatRoomNo);
+    }
 
     // 메시지 전송 후 callback
     @PostMapping("/chatroom/notification")
