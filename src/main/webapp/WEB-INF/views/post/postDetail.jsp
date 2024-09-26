@@ -301,7 +301,7 @@
         const requestBody = JSON.stringify(createChatData);
 
         try {
-            const response = await fetch("/chatroom", {
+            const response = await fetch("api/v1/chatroom", {
                 method: "POST",
                 headers: {
                     "Authorization": getAccessToken(),

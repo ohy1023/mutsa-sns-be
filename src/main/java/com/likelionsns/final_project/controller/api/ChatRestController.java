@@ -9,16 +9,12 @@ import com.likelionsns.final_project.domain.response.MyChatRoomResponse;
 import com.likelionsns.final_project.domain.response.Response;
 import com.likelionsns.final_project.service.ChatRoomService;
 import com.likelionsns.final_project.service.ChatService;
-import com.likelionsns.final_project.service.MessageReceiver;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
-import org.springframework.messaging.handler.annotation.SendTo;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,12 +23,11 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/api/v1")
 public class ChatRestController {
 
     private final ChatService chatService;
     private final ChatRoomService chatRoomService;
-
-    private final MessageReceiver receiver;
 
     @PostMapping("/chatroom")
     public ResponseEntity<Response<Chat>> createChatRoom(@RequestBody ChatRequestDto requestDto, Authentication authentication) {
@@ -41,7 +36,7 @@ public class ChatRestController {
         log.info("userName: {}", myName);
 
         // 채팅방을 만들어준다.
-        Chat chat = chatService.makeChatRoom(myName, requestDto);
+        Chat chat = chatRoomService.makeChatRoom(myName, requestDto);
 
         return ResponseEntity.ok(Response.success(chat));
     }
@@ -60,11 +55,18 @@ public class ChatRestController {
     public ResponseEntity<Response<List<MyChatRoomResponse>>> chatRoomList(Authentication authentication) {
         String myName = authentication.getName();
 
-        List<MyChatRoomResponse> chatRoomList = chatService.getChatRoomList(myName);
+        List<MyChatRoomResponse> chatRoomList = chatRoomService.getChatRoomList(myName);
 
         return ResponseEntity.ok(Response.success(chatRoomList));
     }
 
+    // 알림 전송 및 메세지 저장 (메시지 전송 후 callback )
+    @PostMapping("/chatroom/message-alarm-record")
+    public ResponseEntity<Response<Message>> sendNotification(@RequestBody Message message, Authentication authentication) {
+        String userName = authentication.getName();
+        Message savedMessage = chatService.sendAlarmAndSaveMessage(message, userName);
+        return ResponseEntity.ok(Response.success(savedMessage));
+    }
 
     // 메세지 전송
     @MessageMapping("/message")
@@ -73,15 +75,6 @@ public class ChatRestController {
         chatService.sendMessage(message, accessToken);
     }
 
-    // 채팅방 접속 끊기
-    @PostMapping("/chatroom/{chatroomNo}")
-    public ResponseEntity<Response<String>> disconnectChat(@PathVariable("chatroomNo") Integer chatroomNo,
-                                                           @RequestParam("userName") String userName) {
-
-        chatRoomService.disconnectChatRoom(chatroomNo, userName);
-        chatService.leaveMessage(userName, chatroomNo);
-        return ResponseEntity.ok(Response.success("접속 끊기"));
-    }
 
     @MessageMapping("/chatroom/leave")
     public void leaveChatRoom(@Payload LeaveRequest leaveRequest, @Header("Authorization") final String accessToken) {
@@ -96,11 +89,4 @@ public class ChatRestController {
         chatService.leaveMessage(leaveUserName, leaveChatRoomNo);
     }
 
-    // 메시지 전송 후 callback
-    @PostMapping("/chatroom/notification")
-    public ResponseEntity<Response<Message>> sendNotification(@RequestBody Message message, Authentication authentication) {
-        String userName = authentication.getName();
-        Message savedMessage = chatService.sendNotificationAndSaveMessage(message, userName);
-        return ResponseEntity.ok(Response.success(savedMessage));
-    }
 }

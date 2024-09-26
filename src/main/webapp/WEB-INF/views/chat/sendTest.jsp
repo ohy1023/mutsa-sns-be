@@ -255,12 +255,12 @@
                     };
 
                     // HTTP POST 요청을 통해 콜백 엔드포인트 호출
-                    fetch("/chatroom/notification", {
+                    fetch("api/v1/chatroom/message-alarm-record", {
                         method: "POST",
                         headers: {
                             "Content-Type": "application/json",
                             "Authorization": "Bearer " + localStorage.getItem("accessToken")
-                        },
+                            },
                         body: JSON.stringify(notificationPayload)
                     })
                 }
@@ -343,7 +343,7 @@
 
     // 채팅 내역 가져오는 함수
     function fetchChatHistory(chatNo) {
-        fetch(`/chatroom/` + chatNo, {
+        fetch(`api/v1/chatroom/` + chatNo, {
             method: "GET",
             headers: {
                 "Authorization": "Bearer " + localStorage.getItem("accessToken")

@@ -50,12 +50,13 @@ public class StompHandler implements ChannelInterceptor {
 
     private void handleMessage(StompCommand stompCommand, StompHeaderAccessor accessor, String userName) {
         switch (stompCommand) {
-
             case CONNECT:
                 connectToChatRoom(accessor, userName);
                 break;
             case ERROR:
                 throw new MessageDeliveryException("error");
+            default:
+                break;
         }
     }
 
@@ -91,7 +92,7 @@ public class StompHandler implements ChannelInterceptor {
         chatRoomService.connectChatRoom(chatRoomNo, userName);
 
         // 읽지 않은 채팅을 전부 읽음 처리
-        chatService.updateCountAllZero(chatRoomNo, userName);
+        chatRoomService.updateUnreadMessagesToRead(chatRoomNo, userName);
 
         log.info("해당 채팅방에 접속중인 유저 유무 : {}", isConnected);
 

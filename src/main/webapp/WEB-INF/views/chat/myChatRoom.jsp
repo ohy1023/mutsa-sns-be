@@ -74,7 +74,7 @@
 <%@ include file="../common/footer.jsp" %>
 <script>
     // Fetch chat room list from API
-    fetch("/my-chatroom", {
+    fetch("api/v1/my-chatroom", {
         method: "GET",
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("accessToken")

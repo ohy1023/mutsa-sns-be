@@ -8,6 +8,7 @@ import java.io.Serializable;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 
 @Getter
 @ToString
@@ -28,16 +29,13 @@ public class Message implements Serializable {
 
     private Integer readCount;
 
-
-    public void setSendTimeAndSender(LocalDateTime sendTime, String senderName, Integer readCount) {
+    public void setSendTimeAndSender(LocalDateTime sendTime, String senderName, int readCount) {
         this.senderName = senderName;
         this.sendTime = sendTime.atZone(ZoneId.of("Asia/Seoul")).toInstant().toEpochMilli();
         this.readCount = readCount;
     }
 
-    public void setId(String id) {
-        this.id = id;
-    }
+    public void setId(String id) {this.id = id;}
 
     public Chatting toEntity() {
         return Chatting.builder()

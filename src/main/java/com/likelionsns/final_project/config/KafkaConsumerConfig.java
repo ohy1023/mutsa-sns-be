@@ -37,7 +37,12 @@ public class KafkaConsumerConfig {
                         .put(ConsumerConfig.GROUP_ID_CONFIG, "Mutsa-Sns")
                         .put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class)
                         .put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class)
+                        .put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest")
+                        // 하트비트 및 세션 타임아웃 설정
+//                        .put(ConsumerConfig.HEARTBEAT_INTERVAL_MS_CONFIG, 10000)  // 10초
+//                        .put(ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, 30000)  // 30초
                         .build();
+
 
         // 들어오는 Message 를 객체로 받기 위한 deserializer
         JsonDeserializer<Message> deserializer = new JsonDeserializer<>();

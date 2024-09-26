@@ -1,14 +1,19 @@
 package com.likelionsns.final_project.repository;
 
-import com.likelionsns.final_project.domain.dto.ChatRoom;
-import org.springframework.data.repository.CrudRepository;
+import com.likelionsns.final_project.domain.entity.Chat;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
 
-public interface ChatRoomRepository extends CrudRepository<ChatRoom, String> {
+public interface ChatRoomRepository extends JpaRepository<Chat, Integer> {
 
-    List<ChatRoom> findByChatroomNo(Integer chatRoomNo);
+    // 내가 만든 채팅방또는 내가 참여중인 채팅방을 전부 찾아주는 메서드
+    @Query("select c from Chat c where c.createUser = :userId or c.joinUser = :userId")
+    List<Chat> findChattingRoom(@Param("userId") Integer userId);
 
-    Optional<ChatRoom> findByChatroomNoAndUserName(Integer chatRoomNo, String userName);
+    @Query("select c from Chat c where (c.createUser = :myId and c.joinUser = :otherId) or (c.createUser = :otherId and c.joinUser = :myId)")
+    Optional<Chat> findActiveChat(@Param("myId") Integer myId, @Param("otherId") Integer otherId);
 }
