@@ -1,3 +1,7 @@
 mongodb:
-  client: ${MONGODB_CLIENT:mongodb://localhost:27017}  # 환경 변수 MONGODB_CLIENT 사용, 없으면 기본값 사용
-  name: ${MONGODB_NAME:test}                           # 환경 변수 MONGODB_NAME 사용, 없으면 기본값 사용
+  host: ${MONGODB_HOST:localhost}              # MongoDB 호스트 (환경 변수 없으면 기본값 localhost)
+  port: ${MONGODB_PORT:27017}                  # MongoDB 포트 (기본값: 27017)
+  database: ${MONGODB_DATABASE:chat-history}   # 사용할 데이터베이스
+  username: ${MONGODB_USERNAME:admin}          # MongoDB 사용자 이름
+  password: ${MONGODB_PASSWORD:rootpasswordtest}  # MongoDB 비밀번호
+  authentication-database: ${MONGODB_AUTH_DB:admin}   # 인증할 데이터베이스 (보통 'admin')

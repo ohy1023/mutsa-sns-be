@@ -2,7 +2,7 @@ server:
   servlet:
     encoding:
       force-response: true
-  port: 8081
+  port: ${SERVER_PORT:8089}
 spring:
   profiles:
     include:
@@ -17,9 +17,9 @@ spring:
         format_sql: true
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/sns
-    username: root
-    password: {SPRING_DATASOURCE_PASSWORD:1234}
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3307/mutsa-sns }
+    username: ${SPRING_DATASOURCE_USERNAME:root }
+    password: ${SPRING_DATASOURCE_PASSWORD:1234 }
 
 logging:
   level:
@@ -27,4 +27,7 @@ logging:
     org.hibernate.type: trace   # Show Query Parameter
 
 jwt:
-  secret: hello
+  secret: ${JWT_SECRET}
+
+kafka:
+  bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}

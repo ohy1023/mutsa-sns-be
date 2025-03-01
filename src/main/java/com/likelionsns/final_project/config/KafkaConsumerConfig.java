@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import com.likelionsns.final_project.domain.dto.Message;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.EnableKafka;
@@ -17,6 +18,9 @@ import java.util.Map;
 @EnableKafka
 @Configuration
 public class KafkaConsumerConfig {
+
+    @Value("${kafka.bootstrap-servers}")
+    private String kafkaBootstrapServers;
 
     // KafkaListener 컨테이너 팩토리를 생성하는 Bean 메서드
     @Bean
@@ -33,14 +37,11 @@ public class KafkaConsumerConfig {
         // Kafka Consumer 구성을 위한 설정값들을 설정 -> 변하지 않는 값이므로 ImmutableMap을 이용하여 설정
         Map<String, Object> consumerConfigurations =
                 ImmutableMap.<String, Object>builder()
-                        .put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092")
+                        .put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaBootstrapServers)
                         .put(ConsumerConfig.GROUP_ID_CONFIG, "Mutsa-Sns")
                         .put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class)
                         .put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class)
                         .put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest")
-                        // 하트비트 및 세션 타임아웃 설정
-//                        .put(ConsumerConfig.HEARTBEAT_INTERVAL_MS_CONFIG, 10000)  // 10초
-//                        .put(ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, 30000)  // 30초
                         .build();
 
 
