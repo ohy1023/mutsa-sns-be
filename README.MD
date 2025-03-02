@@ -10,12 +10,11 @@
 - 댓글 CRUD
 - 좋아요 기능
 - 알림 기능
-- JSP를 활용한 UI
 - Soft Delete 적용
 
 ### ✔ 기술 스택
 
-- frontend : HTML/CSS, JSP, Java Script
+- frontend : HTML/CSS, Java Script
 - backend : java, spring boot, JPA, spring security, KAFKA
 - Database : MYSQL, Redis, MongoDB
 - CI/CD : gitlab
@@ -40,7 +39,7 @@
 
 ### ✔ API 명세서
 
-- [Swagger](http://ec2-54-180-83-38.ap-northeast-2.compute.amazonaws.com:8080/swagger-ui/index.html#/)
+- [Swagger](https://port-0-mutsa-sns-m7plej378a04f632.sel4.cloudtype.app/swagger-ui/index.html#/)
 
 | Category | Method | URL                                 | Description       | note                      |
 |----------|--------|-------------------------------------|-------------------|---------------------------|
