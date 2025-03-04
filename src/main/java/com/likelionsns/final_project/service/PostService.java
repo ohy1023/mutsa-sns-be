@@ -16,6 +16,7 @@ import com.likelionsns.final_project.utils.FilterManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -179,7 +180,7 @@ public class PostService {
         return posts.map(post -> PostSummaryInfoResponse.builder()
                 .postId(post.getId())
                 .registeredAt(post.getRegisteredAt())
-                .postThumbnailUrl(postMediaRepository.findThumbnailUrl(post))
+                .postThumbnailUrl(postMediaRepository.findThumbnailUrl(post, PageRequest.of(0, 1)).stream().findFirst().orElse(null))
                 .build()
         );
     }

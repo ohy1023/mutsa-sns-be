@@ -42,10 +42,16 @@ public class UserService {
     private String secretKey;
 
     public UserJoinResponse join(UserJoinRequest userJoinRequest) {
-        userRepository.findByUserName(userJoinRequest.getUsername())
+        userRepository.findByUserName(userJoinRequest.getUserName())
                 .ifPresent((user -> {
                     throw new SnsAppException(DUPLICATED_USER_NAME, DUPLICATED_USER_NAME.getMessage());
                 }));
+
+        userRepository.findByNickName(userJoinRequest.getNickName())
+                .ifPresent((user -> {
+                    throw new SnsAppException(DUPLICATED_NICK_NAME, DUPLICATED_NICK_NAME.getMessage());
+                }));
+
         User savedUser = userRepository.save(userJoinRequest.toEntity(encoder.encode(userJoinRequest.getPassword())));
         return UserJoinResponse.toResponse(savedUser);
     }

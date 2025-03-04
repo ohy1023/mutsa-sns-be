@@ -12,6 +12,8 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<User, Integer> {
     Optional<User> findByUserName(String userName);
 
+    Optional<User> findByNickName(String nickName);
+
     @Query("SELECT u FROM User u WHERE u.userName LIKE %:keyword% OR u.nickName LIKE %:keyword%")
     Page<User> searchUsers(@Param("keyword") String keyword, Pageable pageable);
 }

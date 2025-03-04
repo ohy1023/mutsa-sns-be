@@ -9,21 +9,21 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class UserJoinRequest {
 
-    private String username;
+    private String userName;
     private String nickName;
     private String password;
 
     public User toEntity(String password) {
         return User.builder()
-                .userName(this.username)
+                .userName(this.userName)
                 .nickName(this.nickName)
                 .password(password)
                 .build();
     }
 
     @Builder
-    public UserJoinRequest(String username, String nickName, String password) {
-        this.username = username;
+    public UserJoinRequest(String userName, String nickName, String password) {
+        this.userName = userName;
         this.nickName = nickName;
         this.password = password;
     }
