@@ -1,7 +1,6 @@
 package com.likelionsns.final_project.service;
 
 import com.likelionsns.final_project.domain.dto.UserDto;
-import com.likelionsns.final_project.domain.enums.UserRole;
 import com.likelionsns.final_project.domain.request.UserJoinRequest;
 import com.likelionsns.final_project.domain.response.UserJoinResponse;
 import com.likelionsns.final_project.domain.entity.User;
@@ -33,7 +32,7 @@ public class UserService {
 
     @Transactional
     public UserJoinResponse join(UserJoinRequest userJoinRequest) {
-        userRepository.findByUserName(userJoinRequest.getUserName())
+        userRepository.findByUserName(userJoinRequest.getUsername())
                 .ifPresent((user -> {
                     throw new SnsAppException(DUPLICATED_USER_NAME, DUPLICATED_USER_NAME.getMessage());
                 }));
@@ -43,9 +42,6 @@ public class UserService {
 
     @Transactional
     public String login(String userName, String password) {
-
-        log.info("userName:{}", userName);
-        log.info("password:{}", password);
         User user = userRepository.findByUserName(userName)
                 .orElseThrow(() -> new SnsAppException(USERNAME_NOT_FOUND, USERNAME_NOT_FOUND.getMessage()));
 
@@ -57,14 +53,10 @@ public class UserService {
     }
 
     @Transactional
-    public UserRoleResponse changeRole(Integer userId, String userName) {
-        User admin = userRepository.findByUserName(userName).orElseThrow(() -> {
-            throw new SnsAppException(USERNAME_NOT_FOUND, USERNAME_NOT_FOUND.getMessage());
-        });
+    public UserRoleResponse changeRole(Integer userId, String username) {
+        User admin = userRepository.findByUserName(username).orElseThrow(() -> new SnsAppException(USERNAME_NOT_FOUND, USERNAME_NOT_FOUND.getMessage()));
 
-        User targetUser = userRepository.findById(userId).orElseThrow(() -> {
-            throw new SnsAppException(USERNAME_NOT_FOUND, USERNAME_NOT_FOUND.getMessage());
-        });
+        User targetUser = userRepository.findById(userId).orElseThrow(() -> new SnsAppException(USERNAME_NOT_FOUND, USERNAME_NOT_FOUND.getMessage()));
 
         if (admin.getUserRole() != ADMIN) {
             throw new SnsAppException(INVALID_PERMISSION,INVALID_PERMISSION.getMessage());

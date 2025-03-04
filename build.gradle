@@ -51,6 +51,7 @@ dependencies {
 
     implementation "org.apache.tomcat.embed:tomcat-embed-jasper"
 
+    implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
 
 
 }

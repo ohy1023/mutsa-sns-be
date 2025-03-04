@@ -10,19 +10,21 @@ import lombok.NoArgsConstructor;
 public class UserJoinResponse {
 
     private Integer userId;
-
-    private String userName;
+    private String username;
+    private String nickName;
 
     @Builder
-    public UserJoinResponse(Integer userId, String userName) {
+    public UserJoinResponse(Integer userId, String username, String nickName) {
         this.userId = userId;
-        this.userName = userName;
+        this.username = username;
+        this.nickName = nickName;
     }
 
     public static UserJoinResponse toResponse(User user) {
         return UserJoinResponse.builder()
                 .userId(user.getId())
-                .userName(user.getUserName())
+                .username(user.getUserName())
+                .nickName(user.getNickName())
                 .build();
     }
 }

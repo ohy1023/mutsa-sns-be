@@ -8,9 +8,10 @@ spring:
     include:
       - mongo
       - redis
+      - s3
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
     show-sql: false
     properties:
       hibernate:
