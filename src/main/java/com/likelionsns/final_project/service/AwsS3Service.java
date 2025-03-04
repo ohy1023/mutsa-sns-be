@@ -1,10 +1,9 @@
-package com.likelionsns.final_project.config.s3.service;
+package com.likelionsns.final_project.service;
 
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
-import com.likelionsns.final_project.exception.ErrorCode;
 import com.likelionsns.final_project.exception.SnsAppException;
 import com.likelionsns.final_project.utils.FileUtils;
 import lombok.RequiredArgsConstructor;
@@ -16,8 +15,8 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.io.InputStream;
 
-import static com.likelionsns.final_project.config.s3.AwsConstants.ORIGIN_POST_FOLDER;
-import static com.likelionsns.final_project.config.s3.AwsConstants.ORIGIN_USER_FOLDER;
+import static com.likelionsns.final_project.config.AwsConstants.ORIGIN_POST_FOLDER;
+import static com.likelionsns.final_project.config.AwsConstants.ORIGIN_USER_FOLDER;
 import static com.likelionsns.final_project.exception.ErrorCode.*;
 
 

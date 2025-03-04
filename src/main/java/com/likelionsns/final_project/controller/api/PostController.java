@@ -2,10 +2,7 @@ package com.likelionsns.final_project.controller.api;
 
 import com.likelionsns.final_project.domain.dto.CommentDto;
 import com.likelionsns.final_project.domain.dto.PostDto;
-import com.likelionsns.final_project.domain.request.CommentCreateRequest;
-import com.likelionsns.final_project.domain.request.CommentUpdateRequest;
-import com.likelionsns.final_project.domain.request.PostCreateRequest;
-import com.likelionsns.final_project.domain.request.PostUpdateRequest;
+import com.likelionsns.final_project.domain.request.*;
 import com.likelionsns.final_project.domain.response.*;
 import com.likelionsns.final_project.service.CommentService;
 import com.likelionsns.final_project.service.LikeService;
@@ -21,57 +18,69 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/posts")
 public class PostController {
-    private final PostService postService;
 
+    private final PostService postService;
     private final CommentService commentService;
     private final LikeService likeService;
 
     @ApiOperation(value = "포스트 등록")
     @PostMapping
-    public ResponseEntity<Response<PostResponse>> createPost(@RequestBody PostCreateRequest postCreateRequest, Authentication authentication) {
-        PostDto postDto = postService.createPost(postCreateRequest, authentication.getName());
-        return ResponseEntity.ok().body(Response.success(new PostResponse("포스트 등록 완료", postDto.getId())));
-    }
-
-    @ApiOperation(value = "포스트 상세 보기")
-    @GetMapping("/{postId}")
-    public ResponseEntity<Response<PostDetailResponse>> findById(@PathVariable Integer postId) {
-        PostDetailResponse response = postService.findDetail(postId);
-        return ResponseEntity.ok().body(Response.success(response));
-    }
-
-    @ApiOperation(value = "포스트 목록")
-    @GetMapping
-    public ResponseEntity<Response<Page<PostDto>>> getPostList(@PageableDefault(size = 9)
-                                                               @SortDefault(sort = "registeredAt", direction = Sort.Direction.DESC) Pageable pageable) {
-        Page<PostDto> postDtos = postService.getAllPost(pageable);
-        return ResponseEntity.ok().body(Response.success(postDtos));
+    public ResponseEntity<Void> createPost(@RequestPart PostCreateRequest postCreateRequest, Authentication authentication) {
+        postService.createPost(postCreateRequest, authentication.getName());
+        return ResponseEntity.noContent().build();
     }
 
     @ApiOperation(value = "포스트 수정")
     @PutMapping("/{postId}")
-    public ResponseEntity<Response<PostResponse>> update(@PathVariable Integer postId, @RequestBody PostUpdateRequest postUpdateRequest, Authentication authentication) {
-        PostDto postDto = postService.update(postId, authentication.getName(), postUpdateRequest.getBody());
-        return ResponseEntity.ok().body(Response.success(new PostResponse("포스트 수정 완료", postId)));
+    public ResponseEntity<Void> update(@PathVariable Integer postId, @RequestPart PostUpdateRequest postUpdateRequest, Authentication authentication) {
+        postService.updatePost(postId, authentication.getName(), postUpdateRequest);
+        return ResponseEntity.noContent().build();
     }
 
-    @ApiOperation(value = "포스트 삭제", notes = "soft delete 사용 cf) post, like, comment 같이 삭제")
+    @ApiOperation(value = "포스트 삭제", notes = "soft delete 사용")
     @DeleteMapping("/{postId}")
-    public ResponseEntity<Response<PostResponse>> deleteById(@PathVariable Integer postId, Authentication authentication) {
+    public ResponseEntity<Void> deleteById(@PathVariable Integer postId, Authentication authentication) {
         postService.delete(authentication.getName(), postId);
-        return ResponseEntity.ok().body(Response.success(new PostResponse("포스트 삭제 완료", postId)));
+        return ResponseEntity.noContent().build();
     }
 
-    @ApiOperation(value = "나의 피드 목록", notes = "로그인한 유저의 포스트 목록")
+    @ApiOperation(value = "포스트 상세 조회")
+    @GetMapping("/{postId}")
+    public ResponseEntity<Response<PostDetailResponse>> getDetailPost(@PathVariable Integer postId) {
+        return ResponseEntity.ok().body(Response.success(postService.getDetailPost(postId)));
+    }
+
+    @ApiOperation(value = "내가 팔로우한 사람의 피드 목록 (자기 포함)")
+    @GetMapping("/following")
+    public ResponseEntity<Response<Page<PostDetailResponse>>> getFollowingFeed(
+            Authentication authentication,
+            @PageableDefault(size = 6)
+            @SortDefault(sort = "registeredAt", direction = Sort.Direction.DESC) Pageable pageable) {
+
+        Page<PostDetailResponse> followingFeed = postService.getFollowingFeed(authentication.getName(), pageable);
+        return ResponseEntity.ok().body(Response.success(followingFeed));
+    }
+
+
+    @ApiOperation(value = "나의 피드 요약 목록")
     @GetMapping("/my")
-    public ResponseEntity<Response<Page<PostDto>>> getMyPost(@PageableDefault(size = 20)
-                                                             @SortDefault(sort = "registeredAt", direction = Sort.Direction.DESC) Pageable pageable, Authentication authentication) {
-        Page<PostDto> myPosts = postService.getMyPost(pageable, authentication.getName());
-        return ResponseEntity.accepted().body(Response.success(myPosts));
+    public ResponseEntity<Response<Page<PostSummaryInfoResponse>>> getMyPost(@PageableDefault(size = 9)
+                                                                             @SortDefault(sort = "registeredAt", direction = Sort.Direction.DESC) Pageable pageable, Authentication authentication) {
+        Page<PostSummaryInfoResponse> myPosts = postService.getUserPost(authentication.getName(), pageable);
+        return ResponseEntity.ok().body(Response.success(myPosts));
+    }
+
+    @ApiOperation(value = "해당 유저의 피드 요약 목록")
+    @GetMapping("/{userName}")
+    public ResponseEntity<Response<Page<PostSummaryInfoResponse>>> getMyPost(@PathVariable String userName, @PageableDefault(size = 9)
+    @SortDefault(sort = "registeredAt", direction = Sort.Direction.DESC) Pageable pageable) {
+        Page<PostSummaryInfoResponse> myPosts = postService.getUserPost(userName, pageable);
+        return ResponseEntity.ok().body(Response.success(myPosts));
     }
 
     @ApiOperation(value = "삭제된 피드 목록", notes = "삭제 된 포스트 목록")
@@ -136,4 +145,11 @@ public class PostController {
         return ResponseEntity.ok().body(Response.success(likeCnt));
     }
 
+
+    @ApiOperation(value = "댓글 개수 조회")
+    @GetMapping("/{postId}/comment-cnt")
+    public ResponseEntity<Response<Long>> viewCommentCount(@PathVariable Integer postId) {
+        Long commentCnt = commentService.viewCount(postId);
+        return ResponseEntity.ok().body(Response.success(commentCnt));
+    }
 }

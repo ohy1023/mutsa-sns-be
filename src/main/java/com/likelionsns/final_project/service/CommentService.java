@@ -64,6 +64,7 @@ public class CommentService {
         Page<CommentDto> commentDtos = CommentDto.toDtoList(comments);
         return commentDtos;
     }
+
     @Transactional
     public CommentUpdateResponse updateComment(Integer postId, Integer commentId, CommentUpdateRequest commentUpdateRequest, String userName) {
         Post post = postRepository.findById(postId)
@@ -101,6 +102,14 @@ public class CommentService {
 
 
     }
+
+    public Long viewCount(Integer postId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new SnsAppException(POST_NOT_FOUND, POST_NOT_FOUND.getMessage()));
+
+        return commentRepository.countByPost(post);
+    }
+
 
     private static boolean isMismatch(String userName, Comment comment) {
         return !Objects.equals(comment.getUser().getUserName(), userName);

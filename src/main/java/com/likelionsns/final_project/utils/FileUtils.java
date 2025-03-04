@@ -5,7 +5,7 @@ import com.likelionsns.final_project.exception.SnsAppException;
 
 import java.util.UUID;
 
-import static com.likelionsns.final_project.config.s3.AwsConstants.ORIGINAL_BUCKET_NAME;
+import static com.likelionsns.final_project.config.AwsConstants.ORIGINAL_BUCKET_NAME;
 import static com.likelionsns.final_project.exception.ErrorCode.*;
 
 

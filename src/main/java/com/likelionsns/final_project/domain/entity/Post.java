@@ -29,8 +29,6 @@ public class Post extends BaseEntity {
     @Column(name = "post_id")
     private Integer id;
 
-    private String thumbnail;
-
     private String body;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -63,5 +61,15 @@ public class Post extends BaseEntity {
     public void addComment(Comment comment) {
         comments.add(comment);
         comment.addPost(this);
+    }
+
+    public void addMedia(PostMedia postMedia) {
+        mediaList.add(postMedia);
+        postMedia.setPost(this);
+    }
+
+    public void updateMedia(List<PostMedia> newMediaList) {
+        this.mediaList.clear(); // 기존 리스트 클리어
+        this.mediaList.addAll(newMediaList); // 새로운 리스트 추가
     }
 }

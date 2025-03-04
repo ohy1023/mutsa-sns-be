@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface FollowRepository extends JpaRepository<Follow, Long> {
+public interface FollowRepository extends JpaRepository<Follow, Integer> {
     boolean existsByFollowerAndFollowing(User follower, User following);
 
     Optional<Follow> findByFollowerAndFollowing(User follower, User following);

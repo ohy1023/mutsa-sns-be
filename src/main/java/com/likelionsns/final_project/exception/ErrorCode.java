@@ -17,8 +17,10 @@ public enum ErrorCode {
     INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "잘못된 토큰입니다."),
     INVALID_PERMISSION(HttpStatus.UNAUTHORIZED, "사용자가 권한이 없습니다."),
     POST_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 포스트가 없습니다."),
+    LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST, "업로드 가능 한도를 초과했습니다."),
     DATABASE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "DB에러"),
     COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 코맨트가 없습니다"),
+    MEDIA_NOT_FOUND(HttpStatus.NOT_FOUND,"미디어가 없습니다."),
 
     LIKE_NOT_FOUND(HttpStatus.NOT_FOUND, "좋아요를 취소할려면 좋아요를 눌러주세요"),
     DUPLICATED_LIKE_COUNT(HttpStatus.CONFLICT, "이미 좋아요를 눌렀습니다."),

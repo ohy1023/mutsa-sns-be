@@ -1,10 +1,10 @@
 package com.likelionsns.final_project.service;
 
-import com.likelionsns.final_project.config.s3.service.AwsS3Service;
 import com.likelionsns.final_project.domain.dto.UserDto;
 import com.likelionsns.final_project.domain.entity.Follow;
 import com.likelionsns.final_project.domain.request.UpdateUserRequest;
 import com.likelionsns.final_project.domain.request.UserJoinRequest;
+import com.likelionsns.final_project.domain.response.UserDetailResponse;
 import com.likelionsns.final_project.domain.response.UserInfoResponse;
 import com.likelionsns.final_project.domain.response.UserJoinResponse;
 import com.likelionsns.final_project.domain.entity.User;
@@ -163,6 +163,20 @@ public class UserService {
     @Transactional(readOnly = true)
     public UserDto getUserByUserName(String userName) {
         return UserDto.toUserDto(findUserByUserName(userName));
+    }
+
+    @Transactional(readOnly = true)
+    public UserDetailResponse getUserInfo(String userName) {
+        User user = findUserByUserName(userName);
+        long followingCount = followRepository.countByFollower(user);
+        long followerCount = followRepository.countByFollowing(user);
+
+        return UserDetailResponse.builder()
+                .username(user.getUserName())
+                .nickname(user.getNickName())
+                .followingCount(followingCount)
+                .followerCount(followerCount)
+                .build();
     }
 
     private User findUserByUserName(String userName) {

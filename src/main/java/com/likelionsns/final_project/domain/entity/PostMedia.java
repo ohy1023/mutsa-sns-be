@@ -1,6 +1,5 @@
 package com.likelionsns.final_project.domain.entity;
 
-import com.likelionsns.final_project.domain.enums.MediaType;
 import lombok.*;
 
 import javax.persistence.*;
@@ -16,6 +15,7 @@ public class PostMedia extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Setter
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id", nullable = false)
     private Post post;
@@ -24,5 +24,10 @@ public class PostMedia extends BaseEntity {
     private String mediaUrl; // 이미지 또는 동영상 URL
 
     @Column(nullable = false)
-    private MediaType mediaType; // "image" 또는 "video"
+    private Integer mediaOrder; // 순서
+
+    public void updateOrder(Integer newOrder) {
+        this.mediaOrder = newOrder;
+    }
+
 }

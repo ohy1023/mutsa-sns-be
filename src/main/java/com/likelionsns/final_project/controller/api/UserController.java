@@ -107,6 +107,24 @@ public class UserController {
         return ResponseEntity.ok().body(Response.success(userService.getFollowersPage(authentication.getName(), pageable)));
     }
 
+    @ApiOperation("특정 유저가 팔로우한 유저 목록 조회")
+    @GetMapping("/{userName}/following")
+    public ResponseEntity<Response<Page<UserInfoResponse>>> getFollowingByUserId(
+            @PathVariable String userName,
+            Pageable pageable
+    ) {
+        return ResponseEntity.ok().body(Response.success(userService.getFollowingPage(userName, pageable)));
+    }
+
+    @ApiOperation("특정 유저를 팔로우한 유저 목록 조회")
+    @GetMapping("/{userName}/followers")
+    public ResponseEntity<Response<Page<UserInfoResponse>>> getFollowersByUserId(
+            @PathVariable String userName,
+            Pageable pageable
+    ) {
+        return ResponseEntity.ok().body(Response.success(userService.getFollowersPage(userName, pageable)));
+    }
+
     @ApiOperation(value = "유저 검색", notes = "username 또는 nickname 기준으로 검색")
     @GetMapping("/search")
     public ResponseEntity<Response<Page<UserInfoResponse>>> searchUsers(
@@ -117,12 +135,16 @@ public class UserController {
         return ResponseEntity.ok().body(Response.success(users));
     }
 
+    @ApiOperation("특정 유저 정보 조회")
+    @GetMapping("/{userName}")
+    public ResponseEntity<Response<UserDetailResponse>> getUserInfo(@PathVariable String userName) {
+        return ResponseEntity.ok().body(Response.success(userService.getUserInfo(userName)));
+    }
 
-    // todo 해당 유저 정보 조회 (post, 팔로우 수, 팔로워 수 등)
-//    @ApiOperation("특정 유저 정보 조회")
-//    @GetMapping("/{userId}")
-//    public ResponseEntity<Response<UserInfoResponse>> changeRole(@PathVariable Integer userId) {
-//        return ResponseEntity.ok().body(Response.success(userService.getUserInfo(userId)));
-//    }
+    @ApiOperation("나의 정보 조회")
+    @GetMapping("/my-info")
+    public ResponseEntity<Response<UserDetailResponse>> getMyInfo(Authentication authentication) {
+        return ResponseEntity.ok().body(Response.success(userService.getUserInfo(authentication.getName())));
+    }
 
 }

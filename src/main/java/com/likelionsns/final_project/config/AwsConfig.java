@@ -1,4 +1,4 @@
-package com.likelionsns.final_project.config.s3;
+package com.likelionsns.final_project.config;
 
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
