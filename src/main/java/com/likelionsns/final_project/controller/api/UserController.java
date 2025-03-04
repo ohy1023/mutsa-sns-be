@@ -107,6 +107,15 @@ public class UserController {
         return ResponseEntity.ok().body(Response.success(userService.getFollowersPage(authentication.getName(), pageable)));
     }
 
+    @ApiOperation(value = "유저 검색", notes = "username 또는 nickname 기준으로 검색")
+    @GetMapping("/search")
+    public ResponseEntity<Response<Page<UserInfoResponse>>> searchUsers(
+            @RequestParam String keyword,
+            Pageable pageable
+    ) {
+        Page<UserInfoResponse> users = userService.searchUsers(keyword, pageable);
+        return ResponseEntity.ok().body(Response.success(users));
+    }
 
 
     // todo 해당 유저 정보 조회 (post, 팔로우 수, 팔로워 수 등)

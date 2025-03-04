@@ -135,7 +135,8 @@ public class UserService {
         return followRepository.findByFollower(findUserByUserName(userName), pageable).map(follow -> new UserInfoResponse(
                 follow.getFollowing().getId(),
                 follow.getFollowing().getUserName(),
-                follow.getFollowing().getNickName()
+                follow.getFollowing().getNickName(),
+                follow.getFollowing().getUserImg()
         ));
     }
 
@@ -144,7 +145,18 @@ public class UserService {
         return followRepository.findByFollowing(findUserByUserName(userName), pageable).map(follow -> new UserInfoResponse(
                 follow.getFollowing().getId(),
                 follow.getFollowing().getUserName(),
-                follow.getFollowing().getNickName()
+                follow.getFollowing().getNickName(),
+                follow.getFollowing().getUserImg()
+        ));
+    }
+
+    @Transactional(readOnly = true)
+    public Page<UserInfoResponse> searchUsers(String keyword, Pageable pageable) {
+        return userRepository.searchUsers(keyword, pageable).map(user -> new UserInfoResponse(
+                user.getId(),
+                user.getUserName(),
+                user.getNickName(),
+                user.getUserImg()
         ));
     }
 

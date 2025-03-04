@@ -12,4 +12,5 @@ public class UserInfoResponse {
     private Integer userId;
     private String userName;
     private String nickName;
+    private String userImg;
 }
