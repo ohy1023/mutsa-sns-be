@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/posts")
-public class PostRestController {
+public class PostController {
     private final PostService postService;
 
     private final CommentService commentService;
@@ -46,7 +46,7 @@ public class PostRestController {
 
     @ApiOperation(value = "포스트 목록")
     @GetMapping
-    public ResponseEntity<Response<Page<PostDto>>> getPostList(@PageableDefault(size = 20)
+    public ResponseEntity<Response<Page<PostDto>>> getPostList(@PageableDefault(size = 9)
                                                                @SortDefault(sort = "registeredAt", direction = Sort.Direction.DESC) Pageable pageable) {
         Page<PostDto> postDtos = postService.getAllPost(pageable);
         return ResponseEntity.ok().body(Response.success(postDtos));
@@ -55,7 +55,7 @@ public class PostRestController {
     @ApiOperation(value = "포스트 수정")
     @PutMapping("/{postId}")
     public ResponseEntity<Response<PostResponse>> update(@PathVariable Integer postId, @RequestBody PostUpdateRequest postUpdateRequest, Authentication authentication) {
-        PostDto postDto = postService.update(postId, authentication.getName(), postUpdateRequest.getTitle(), postUpdateRequest.getBody());
+        PostDto postDto = postService.update(postId, authentication.getName(), postUpdateRequest.getBody());
         return ResponseEntity.ok().body(Response.success(new PostResponse("포스트 수정 완료", postId)));
     }
 

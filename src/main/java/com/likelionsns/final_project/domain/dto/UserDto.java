@@ -11,13 +11,15 @@ import lombok.NoArgsConstructor;
 public class UserDto {
     private Integer id;
     private String userName;
+    private String nickName;
     private String password;
     private UserRole userRole;
 
     @Builder
-    public UserDto(Integer id, String userName, String password, UserRole userRole) {
+    public UserDto(Integer id, String userName, String nickName, String password, UserRole userRole) {
         this.id = id;
         this.userName = userName;
+        this.nickName = nickName;
         this.password = password;
         this.userRole = userRole;
     }
@@ -26,6 +28,7 @@ public class UserDto {
         return UserDto.builder()
                 .id(user.getId())
                 .userName(user.getUserName())
+                .nickName(user.getNickName())
                 .password(user.getPassword())
                 .userRole(user.getUserRole())
                 .build();

@@ -9,18 +9,15 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 public class PostCreateRequest {
-    private String title;
     private String body;
 
     @Builder
-    public PostCreateRequest(String title, String body) {
-        this.title = title;
+    public PostCreateRequest(String body) {
         this.body = body;
     }
 
     public Post toEntity(User user) {
         return Post.builder()
-                .title(this.title)
                 .body(this.body)
                 .user(user)
                 .build();

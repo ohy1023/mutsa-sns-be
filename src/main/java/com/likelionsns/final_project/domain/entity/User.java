@@ -1,6 +1,7 @@
 package com.likelionsns.final_project.domain.entity;
 
 import com.likelionsns.final_project.domain.enums.UserRole;
+import com.likelionsns.final_project.domain.request.UpdateUserRequest;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -42,6 +43,13 @@ public class User extends BaseEntity {
     @OneToMany(mappedBy = "user")
     private List<Post> posts = new ArrayList<>();
 
+    // 내가 팔로우한 유저들
+    @OneToMany(mappedBy = "follower", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Follow> followingList = new ArrayList<>();
+
+    // 나를 팔로우한 유저들
+    @OneToMany(mappedBy = "following", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Follow> followersList = new ArrayList<>();
 
     @PrePersist
     public void prePersist() {
@@ -49,12 +57,35 @@ public class User extends BaseEntity {
         this.userImg = this.userImg == null ? "https://ficket-event-content.s3.ap-northeast-2.amazonaws.com/mutsa-sns/basic_profile.png" : this.userImg;
     }
 
+    public void addFollowing(Follow follow) {
+        this.followingList.add(follow);
+    }
+
+    public void removeFollowing(Follow follow) {
+        this.followingList.remove(follow);
+    }
+
+    public void addFollower(Follow follow) {
+        this.followersList.add(follow);
+    }
+
+    public void removeFollower(Follow follow) {
+        this.followersList.remove(follow);
+    }
+
+
     public void promoteRole(User user) {
         user.userRole = ADMIN;
     }
 
     public void demoteRole(User user) {
         user.userRole = USER;
+    }
+
+    public void updateUser(String userProfileImg, UpdateUserRequest updateUserRequest, String newPassword) {
+        this.userImg = userProfileImg;
+        this.nickName = updateUserRequest.getNickName();
+        this.password = newPassword;
     }
 
     @Builder

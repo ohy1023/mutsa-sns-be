@@ -1,13 +1,7 @@
 package com.likelionsns.final_project.domain.entity;
 
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.*;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.Query;
 
 import javax.persistence.*;
 import javax.persistence.CascadeType;
@@ -17,8 +11,9 @@ import java.util.List;
 
 @Getter
 @Entity
+@Builder
+@AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-//@Where(clause = "deleted_at IS NULL")
 @SQLDelete(sql = "UPDATE post SET deleted_at = CURRENT_TIMESTAMP WHERE post_id = ?")
 @FilterDef(
         name = "deletedPostFilter",
@@ -34,7 +29,7 @@ public class Post extends BaseEntity {
     @Column(name = "post_id")
     private Integer id;
 
-    private String title;
+    private String thumbnail;
 
     private String body;
 
@@ -45,20 +40,23 @@ public class Post extends BaseEntity {
     @OneToMany(mappedBy = "comment", cascade = CascadeType.ALL)
     private List<Comment> comments = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
     private List<Like> likes = new ArrayList<>();
 
+    @Builder.Default
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PostMedia> mediaList = new ArrayList<>();
+
     @Builder
-    public Post(Integer id, String title, String body, User user, List<Comment> comments) {
+    public Post(Integer id, String body, User user, List<Comment> comments) {
         this.id = id;
-        this.title = title;
         this.body = body;
         this.user = user;
         this.comments = comments;
     }
 
-    public void updatePost(String updatedTitle, String updatedBody) {
-        this.title = updatedTitle;
+    public void updatePost(String updatedBody) {
         this.body = updatedBody;
     }
 

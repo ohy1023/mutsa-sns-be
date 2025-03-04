@@ -26,7 +26,6 @@ public class PostDetailResponse {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 HH시 mm분");
         return PostDetailResponse.builder()
                 .id(post.getId())
-                .title(post.getTitle())
                 .userName(post.getUser().getUserName())
                 .body(post.getBody())
                 .createdAt(post.getRegisteredAt().format(formatter))

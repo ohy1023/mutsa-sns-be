@@ -7,12 +7,10 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 public class PostUpdateRequest {
-    private String title;
     private String body;
 
     @Builder
-    public PostUpdateRequest(String title, String body) {
-        this.title = title;
+    public PostUpdateRequest(String body) {
         this.body = body;
     }
 }

@@ -76,7 +76,7 @@ public class PostService {
         return PostDto.toDtoList(posts);
     }
 
-    public PostDto update(Integer postId, String userName, String title, String body) {
+    public PostDto update(Integer postId, String userName, String body) {
         // 사용자 정보 및 게시물 정보 가져오기
         User user = userRepository.findByUserName(userName)
                 .orElseThrow(() -> new SnsAppException(USERNAME_NOT_FOUND, USERNAME_NOT_FOUND.getMessage()));
@@ -87,7 +87,7 @@ public class PostService {
         if (checkAuth(userName, post, user)) {
             throw new SnsAppException(INVALID_PERMISSION, INVALID_PERMISSION.getMessage());
         }
-        post.updatePost(title, body);
+        post.updatePost(body);
         return PostDto.toPostDto(post);
     }
 

@@ -13,15 +13,13 @@ import java.time.format.DateTimeFormatter;
 public class PostDto {
 
     private Integer id;
-    private String title;
     private String body;
     private String userName;
     private String createdAt;
 
     @Builder
-    public PostDto(Integer id, String title, String body, String userName, String createdAt) {
+    public PostDto(Integer id, String body, String userName, String createdAt) {
         this.id = id;
-        this.title = title;
         this.body = body;
         this.userName = userName;
         this.createdAt = createdAt;
@@ -32,7 +30,6 @@ public class PostDto {
         String formattedDateTime = post.getRegisteredAt().format(formatter);
         return PostDto.builder()
                 .id(post.getId())
-                .title(post.getTitle())
                 .body(post.getBody())
                 .userName(post.getUser().getUserName())
                 .createdAt(formattedDateTime)
@@ -43,7 +40,6 @@ public class PostDto {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 HH시 mm분");
         return postEntities.map(m -> PostDto.builder()
                 .id(m.getId())
-                .title(m.getTitle())
                 .body(m.getBody())
                 .userName(m.getUser().getUserName())
                 .createdAt(m.getRegisteredAt().format(formatter))
