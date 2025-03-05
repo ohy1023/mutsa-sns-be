@@ -21,8 +21,9 @@ public enum ErrorCode {
     LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST, "업로드 가능 한도를 초과했습니다."),
     DATABASE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "DB에러"),
     COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 코맨트가 없습니다"),
-    MEDIA_NOT_FOUND(HttpStatus.NOT_FOUND,"미디어가 없습니다."),
-
+    MEDIA_NOT_FOUND(HttpStatus.NOT_FOUND, "미디어가 없습니다."),
+    MEDIA_COUNT_MISMATCH(HttpStatus.BAD_REQUEST, "파일 개수와 순서 개수가 일치하지 않습니다."),
+    INVALID_MEDIA_ORDER_LIST(HttpStatus.CONFLICT, "Invalid media order list format."),
     LIKE_NOT_FOUND(HttpStatus.NOT_FOUND, "좋아요를 취소할려면 좋아요를 눌러주세요"),
     DUPLICATED_LIKE_COUNT(HttpStatus.CONFLICT, "이미 좋아요를 눌렀습니다."),
 

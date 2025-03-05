@@ -92,10 +92,9 @@ public class UserService {
         user.updateUser(userProfileImg, updateUserRequest, encoder.encode(updateUserRequest.getNewPassword()));
     }
 
-    public void followUser(String userName, Integer followingId) {
+    public void followUser(String userName, String targetUserName) {
         User follower = findUserByUserName(userName);
-        User following = userRepository.findById(followingId)
-                .orElseThrow(() -> new SnsAppException(USER_NOT_FOUND, USER_NOT_FOUND.getMessage()));
+        User following = findUserByUserName(targetUserName);
 
         if (followRepository.existsByFollowerAndFollowing(follower, following)) {
             throw new SnsAppException(DUPLICATE_FOLLOW, DUPLICATE_FOLLOW.getMessage());
@@ -112,10 +111,9 @@ public class UserService {
         followRepository.save(follow);
     }
 
-    public void unfollowUser(String userName, Integer followingId) {
+    public void unfollowUser(String userName, String targetUserName) {
         User follower = findUserByUserName(userName);
-        User following = userRepository.findById(followingId)
-                .orElseThrow(() -> new SnsAppException(USER_NOT_FOUND, USER_NOT_FOUND.getMessage()));
+        User following = findUserByUserName(targetUserName);
 
         Follow follow = followRepository.findByFollowerAndFollowing(follower, following)
                 .orElseThrow(() -> new SnsAppException(FOLLOW_NOT_FOUND, FOLLOW_NOT_FOUND.getMessage()));
@@ -124,6 +122,13 @@ public class UserService {
         following.removeFollower(follow);
 
         followRepository.delete(follow);
+    }
+
+    public boolean followCheck(String userName, String targetUserName) {
+        User user = findUserByUserName(userName);
+        User targetUser = findUserByUserName(targetUserName);
+
+        return followRepository.existsByFollowerAndFollowing(user, targetUser);
     }
 
     @Transactional(readOnly = true)
@@ -178,8 +183,9 @@ public class UserService {
         long followerCount = followRepository.countByFollowing(user);
 
         return UserDetailResponse.builder()
-                .username(user.getUserName())
-                .nickname(user.getNickName())
+                .userName(user.getUserName())
+                .nickName(user.getNickName())
+                .userImg(user.getUserImg())
                 .followingCount(followingCount)
                 .followerCount(followerCount)
                 .build();

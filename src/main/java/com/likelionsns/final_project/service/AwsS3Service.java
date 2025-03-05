@@ -53,15 +53,16 @@ public class AwsS3Service {
         // 파일 생성
         String key = FileUtils.makeFileName(originalFileName, folder);
 
+        log.info("S3 업로드 정보: 파일 이름={}, 크기={} bytes, Content-Type={}",
+                file.getOriginalFilename(), file.getSize(), file.getContentType());
+
         try (InputStream inputStream = file.getInputStream()) {
             amazonS3Client.putObject(new PutObjectRequest(bucket, key, inputStream, objectMetadata));
         } catch (IOException e) {
             throw new SnsAppException(FILE_UPLOAD_ERROR, FILE_UPLOAD_ERROR.getMessage());
         }
 
-        String storedFileUrl = amazonS3Client.getUrl(bucket, key).toString();
-
-        return storedFileUrl;
+        return amazonS3Client.getUrl(bucket, key).toString();
     }
 
     public void deleteUserImage(String originFileName) {

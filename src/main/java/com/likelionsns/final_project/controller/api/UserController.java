@@ -66,19 +66,26 @@ public class UserController {
     }
 
     @ApiOperation("팔로우 하기")
-    @PostMapping("/follow/{targetUserId}")
+    @PostMapping("/follow/{targetUserName}")
     public ResponseEntity<Void> followUser(
-            Authentication authentication, @PathVariable Integer targetUserId) {
-        userService.followUser(authentication.getName(), targetUserId);
+            Authentication authentication, @PathVariable String targetUserName) {
+        userService.followUser(authentication.getName(), targetUserName);
         return ResponseEntity.noContent().build();
     }
 
     @ApiOperation("팔로우 취소")
-    @DeleteMapping("/unfollow/{targetUserId}")
+    @DeleteMapping("/unfollow/{targetUserName}")
     public ResponseEntity<Void> unfollowUser(
-            Authentication authentication, @PathVariable Integer targetUserId) {
-        userService.unfollowUser(authentication.getName(), targetUserId);
+            Authentication authentication, @PathVariable String targetUserName) {
+        userService.unfollowUser(authentication.getName(), targetUserName);
         return ResponseEntity.noContent().build();
+    }
+
+    @ApiOperation("해당 유저 팔로우 유무")
+    @GetMapping("/follow-check/{targetUserName}")
+    public ResponseEntity<Boolean> followCheck(
+            Authentication authentication, @PathVariable String targetUserName) {
+        return ResponseEntity.ok().body(userService.followCheck(authentication.getName(), targetUserName));
     }
 
     @ApiOperation("내가 팔로우한 유저 수 조회")

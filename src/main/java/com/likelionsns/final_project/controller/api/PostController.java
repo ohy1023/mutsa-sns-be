@@ -1,5 +1,7 @@
 package com.likelionsns.final_project.controller.api;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.likelionsns.final_project.domain.dto.CommentDto;
 import com.likelionsns.final_project.domain.dto.PostDto;
 import com.likelionsns.final_project.domain.request.*;
@@ -9,16 +11,21 @@ import com.likelionsns.final_project.service.LikeService;
 import com.likelionsns.final_project.service.PostService;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.data.web.SortDefault;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/posts")
@@ -29,9 +36,25 @@ public class PostController {
     private final LikeService likeService;
 
     @ApiOperation(value = "포스트 등록")
-    @PostMapping
-    public ResponseEntity<Void> createPost(@RequestPart PostCreateRequest postCreateRequest, Authentication authentication) {
-        postService.createPost(postCreateRequest, authentication.getName());
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Void> uploadPost(
+            @RequestPart("postData") String postDataJson,
+            @RequestPart(value = "multipartFileList", required = false) List<MultipartFile> multipartFileList,
+            @RequestPart(value = "multipartFileOrderList", required = false) String multipartFileOrderList,
+            Authentication authentication
+    ) {
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        PostCreateRequest postData;
+        try {
+            postData = objectMapper.readValue(postDataJson, PostCreateRequest.class);
+        } catch (JsonProcessingException e) {
+            log.error("🚨 파싱 오류");
+            return null;
+        }
+
+        postService.createPost(postData.getBody(), multipartFileList, multipartFileOrderList, authentication.getName());
+
         return ResponseEntity.noContent().build();
     }
 
@@ -76,7 +99,7 @@ public class PostController {
     }
 
     @ApiOperation(value = "해당 유저의 피드 요약 목록")
-    @GetMapping("/{userName}")
+    @GetMapping("/info/{userName}")
     public ResponseEntity<Response<Page<PostSummaryInfoResponse>>> getMyPost(@PathVariable String userName, @PageableDefault(size = 9)
     @SortDefault(sort = "registeredAt", direction = Sort.Direction.DESC) Pageable pageable) {
         Page<PostSummaryInfoResponse> myPosts = postService.getUserPost(userName, pageable);

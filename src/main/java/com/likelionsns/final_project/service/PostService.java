@@ -1,11 +1,12 @@
 package com.likelionsns.final_project.service;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.likelionsns.final_project.domain.constant.FilterConstants;
 import com.likelionsns.final_project.domain.dto.PostDto;
 import com.likelionsns.final_project.domain.entity.Post;
 import com.likelionsns.final_project.domain.entity.PostMedia;
 import com.likelionsns.final_project.domain.entity.User;
-import com.likelionsns.final_project.domain.request.PostCreateRequest;
 import com.likelionsns.final_project.domain.request.PostMediaUpdateRequest;
 import com.likelionsns.final_project.domain.request.PostUpdateRequest;
 import com.likelionsns.final_project.domain.response.PostDetailResponse;
@@ -20,6 +21,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -40,30 +42,46 @@ public class PostService {
     private final AwsS3Service awsS3Service;
     private final CommentRepository commentRepository;
     private final PostMediaRepository postMediaRepository;
+    private final ObjectMapper objectMapper;
 
     @Transactional
-    public void createPost(PostCreateRequest postCreateRequest, String userName) {
-        var user = findUserByUserName(userName);
+    public void createPost(String body, List<MultipartFile> multipartFileList, String multipartFileOrderList, String userName) {
+        User user = findUserByUserName(userName);
 
         // 게시글 생성
         Post post = Post.builder()
                 .user(user)
-                .body(postCreateRequest.getBody())
+                .body(body)
                 .build();
 
-        // 미디어 추가
-        postCreateRequest.getMediaList().stream()
-                .sorted()
-                .forEach(mediaFileDto -> {
-                    String mediaUrl = awsS3Service.uploadPostOriginImage(mediaFileDto.getMultipartFile());
+        // JSON 문자열로 전달된 `multipartFileOrderList`를 List<Integer>로 변환
+        List<Integer> orderList;
+        try {
+            orderList = objectMapper.readValue(multipartFileOrderList, new TypeReference<List<Integer>>() {});
+        } catch (Exception e) {
+            throw new SnsAppException(INVALID_MEDIA_ORDER_LIST, INVALID_MEDIA_ORDER_LIST.getMessage());
+        }
 
-                    PostMedia postMedia = PostMedia.builder()
-                            .mediaUrl(mediaUrl)
-                            .build();
+        // 파일 개수와 순서 개수가 일치하는지 검증
+        if (multipartFileList.size() != orderList.size()) {
+            throw new SnsAppException(MEDIA_COUNT_MISMATCH, MEDIA_COUNT_MISMATCH.getMessage());
+        }
 
-                    post.addMedia(postMedia);
-                });
+        // 파일과 순서를 매칭한 리스트 생성
+        List<PostMedia> mediaList = new ArrayList<>();
+        for (int i = 0; i < multipartFileList.size(); i++) {
+            String multipartUrl = awsS3Service.uploadPostOriginImage(multipartFileList.get(i));
 
+            mediaList.add(PostMedia.builder()
+                    .mediaUrl(multipartUrl)
+                    .mediaOrder(orderList.get(i)) // JSON에서 변환한 정수형 리스트 사용
+                    .build());
+        }
+
+        // 연관 관계 설정
+        mediaList.forEach(post::addMedia);
+
+        // 게시글 저장
         postRepository.save(post);
     }
 
