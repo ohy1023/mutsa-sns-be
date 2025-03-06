@@ -49,8 +49,8 @@ public class CommentService {
                 .user(post.getUser())
                 .alarmType(NEW_COMMENT_ON_POST)
                 .text(NEW_COMMENT_ON_POST.getAlarmText())
-                .fromUserId(user.getId())
-                .targetId(post.getUser().getId())
+                .fromUserName(user.getUserName())
+                .targetUserName(post.getUser().getUserName())
                 .build());
 
         return CommentDto.toCommentDto(savedComment);
@@ -61,8 +61,7 @@ public class CommentService {
                 .orElseThrow(() -> new SnsAppException(POST_NOT_FOUND, POST_NOT_FOUND.getMessage()));
 
         Page<Comment> comments = commentRepository.findAllByPost(post, pageable);
-        Page<CommentDto> commentDtos = CommentDto.toDtoList(comments);
-        return commentDtos;
+        return CommentDto.toDtoList(comments);
     }
 
     @Transactional
@@ -84,7 +83,7 @@ public class CommentService {
     }
 
     @Transactional
-    public boolean deleteComment(Integer postId, Integer commentId, String userName) {
+    public void deleteComment(Integer postId, Integer commentId, String userName) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new SnsAppException(POST_NOT_FOUND, POST_NOT_FOUND.getMessage()));
 
@@ -98,9 +97,6 @@ public class CommentService {
             throw new SnsAppException(INVALID_PERMISSION, INVALID_PERMISSION.getMessage());
         }
         commentRepository.delete(comment);
-        return true;
-
-
     }
 
     public Long viewCount(Integer postId) {

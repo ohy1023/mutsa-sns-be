@@ -15,31 +15,31 @@ import java.time.LocalDateTime;
 public class AlarmDto {
     private Integer id;
     private AlarmType alarmType;
-    private Integer fromUserId;
-    private Integer targetId;
+    private String fromUserName;
+    private String targetUserName;
     private String text;
-    private LocalDateTime createdAt;
+    private LocalDateTime registeredAt;
+
 
     @Builder
-    public AlarmDto(Integer id, AlarmType alarmType, Integer fromUserId, Integer targetId, String text, LocalDateTime createdAt) {
+    public AlarmDto(Integer id, AlarmType alarmType, String fromUserName, String targetUserName, String text, LocalDateTime registeredAt) {
         this.id = id;
         this.alarmType = alarmType;
-        this.fromUserId = fromUserId;
-        this.targetId = targetId;
+        this.fromUserName = fromUserName;
+        this.targetUserName = targetUserName;
         this.text = text;
-        this.createdAt = createdAt;
+        this.registeredAt = registeredAt;
     }
 
     public static Page<AlarmDto> toDtoList(Page<Alarm> alarms) {
-        Page<AlarmDto> alarmDtos = alarms
+        return alarms
                 .map(alarm -> AlarmDto.builder()
                         .id(alarm.getId())
                         .alarmType(alarm.getAlarmType())
-                        .fromUserId(alarm.getFromUserId())
-                        .targetId(alarm.getTargetId())
+                        .fromUserName(alarm.getFromUserName())
+                        .targetUserName(alarm.getTargetUserName())
                         .text(alarm.getText())
-                        .createdAt(alarm.getRegisteredAt())
+                        .registeredAt(alarm.getRegisteredAt())
                         .build());
-        return alarmDtos;
     }
 }

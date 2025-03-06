@@ -54,13 +54,12 @@ public class UserController {
     @ApiOperation("알림 목록 조회")
     @GetMapping("/alarm")
     public ResponseEntity<Response<Page<AlarmDto>>> getAlarms(Authentication authentication, @PageableDefault(size = 20) @SortDefault(sort = "registeredAt", direction = Sort.Direction.DESC) Pageable pageable) {
-        Page<AlarmDto> alarmDtos = alarmService.getAlarms(authentication.getName(), pageable);
-        return ResponseEntity.ok().body(Response.success(alarmDtos));
+        return ResponseEntity.ok().body(Response.success(alarmService.getAlarms(authentication.getName(), pageable)));
     }
 
     @ApiOperation("회원 정보 수정")
     @PatchMapping
-    public ResponseEntity<Void> changeUserInfo(@RequestPart MultipartFile multipartFile, UpdateUserRequest updateUserRequest, Authentication authentication) {
+    public ResponseEntity<Void> changeUserInfo(@RequestPart(required = false) MultipartFile multipartFile, UpdateUserRequest updateUserRequest, Authentication authentication) {
         userService.updateUserInfo(multipartFile, updateUserRequest, authentication.getName());
         return ResponseEntity.noContent().build();
     }
@@ -81,37 +80,43 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
-    @ApiOperation("해당 유저 팔로우 유무")
-    @GetMapping("/follow-check/{targetUserName}")
-    public ResponseEntity<Boolean> followCheck(
-            Authentication authentication, @PathVariable String targetUserName) {
-        return ResponseEntity.ok().body(userService.followCheck(authentication.getName(), targetUserName));
-    }
-
     @ApiOperation("내가 팔로우한 유저 수 조회")
-    @GetMapping("/following/count")
+    @GetMapping("/my-following/count")
     public ResponseEntity<Response<Long>> countFollowing(Authentication authentication) {
         return ResponseEntity.ok().body(Response.success(userService.countFollowing(authentication.getName())));
     }
 
     @ApiOperation("내가 팔로우한 유저 목록 조회")
-    @GetMapping("/following")
+    @GetMapping("/my-following")
     public ResponseEntity<Response<Page<UserInfoResponse>>> getFollowing(
             Authentication authentication, Pageable pageable) {
         return ResponseEntity.ok().body(Response.success(userService.getFollowingPage(authentication.getName(), pageable)));
     }
 
     @ApiOperation("나를 팔로우한 유저 수 조회")
-    @GetMapping("/followers/count")
+    @GetMapping("/my-followers/count")
     public ResponseEntity<Response<Long>> countFollowers(Authentication authentication) {
         return ResponseEntity.ok().body(Response.success(userService.countFollowers(authentication.getName())));
     }
 
     @ApiOperation("나를 팔로우한 유저 목록 조회")
-    @GetMapping("/followers")
+    @GetMapping("/my-followers")
     public ResponseEntity<Response<Page<UserInfoResponse>>> getFollowers(
             Authentication authentication, Pageable pageable) {
         return ResponseEntity.ok().body(Response.success(userService.getFollowersPage(authentication.getName(), pageable)));
+    }
+
+    @ApiOperation("나의 정보 조회")
+    @GetMapping("/my-info")
+    public ResponseEntity<Response<UserDetailResponse>> getMyInfo(Authentication authentication) {
+        return ResponseEntity.ok().body(Response.success(userService.getUserInfo(authentication.getName())));
+    }
+
+    @ApiOperation("해당 유저 팔로우 유무")
+    @GetMapping("/follow-check/{targetUserName}")
+    public ResponseEntity<Boolean> followCheck(
+            Authentication authentication, @PathVariable String targetUserName) {
+        return ResponseEntity.ok().body(userService.followCheck(authentication.getName(), targetUserName));
     }
 
     @ApiOperation("특정 유저가 팔로우한 유저 목록 조회")
@@ -148,10 +153,5 @@ public class UserController {
         return ResponseEntity.ok().body(Response.success(userService.getUserInfo(userName)));
     }
 
-    @ApiOperation("나의 정보 조회")
-    @GetMapping("/my-info")
-    public ResponseEntity<Response<UserDetailResponse>> getMyInfo(Authentication authentication) {
-        return ResponseEntity.ok().body(Response.success(userService.getUserInfo(authentication.getName())));
-    }
 
 }

@@ -1,6 +1,5 @@
 package com.likelionsns.final_project.repository;
 
-import com.likelionsns.final_project.domain.entity.Comment;
 import com.likelionsns.final_project.domain.entity.Like;
 import com.likelionsns.final_project.domain.entity.Post;
 import com.likelionsns.final_project.domain.entity.User;
@@ -20,5 +19,7 @@ public interface LikeRepository extends JpaRepository<Like, Integer> {
 
     @Transactional
     void deleteAllByPost(Post post);
+
+    Boolean existsByPostAndUser(Post post, User user);
 }
 

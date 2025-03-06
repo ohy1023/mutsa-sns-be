@@ -22,12 +22,15 @@ public class PostDetailResponse {
     private String body;
     private String userName;
     private String nickName;
+    private String userImg;
     private String registeredAt;
     private Long likeCnt;
     private Long commentCnt;
+    private Boolean isLiked;
+    private Boolean isOwner;
     private List<PostMediaDto> postMediaDtoList;
 
-    public static PostDetailResponse toResponse(Post post, List<PostMedia> postMediaList, Long likeCnt, Long commentCnt) {
+    public static PostDetailResponse toResponse(Post post, Boolean isOwner, Boolean isLiked, List<PostMedia> postMediaList, Long likeCnt, Long commentCnt) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 HH시 mm분");
 
         List<PostMediaDto> postMediaDtoList = postMediaList.stream().map(
@@ -41,7 +44,10 @@ public class PostDetailResponse {
         return PostDetailResponse.builder()
                 .postId(post.getId())
                 .userName(post.getUser().getUserName())
+                .userImg(post.getUser().getUserImg())
                 .body(post.getBody())
+                .isOwner(isOwner)
+                .isLiked(isLiked)
                 .registeredAt(post.getRegisteredAt().format(formatter))
                 .likeCnt(likeCnt)
                 .commentCnt(commentCnt)

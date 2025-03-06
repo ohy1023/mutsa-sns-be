@@ -7,14 +7,12 @@ import com.likelionsns.final_project.exception.SnsAppException;
 import com.likelionsns.final_project.repository.AlarmRepository;
 import com.likelionsns.final_project.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import static com.likelionsns.final_project.exception.ErrorCode.*;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AlarmService {
@@ -24,9 +22,7 @@ public class AlarmService {
     public Page<AlarmDto> getAlarms(String userName, Pageable pageable) {
         User user = userRepository.findByUserName(userName)
                 .orElseThrow(() -> new SnsAppException(USERNAME_NOT_FOUND, USERNAME_NOT_FOUND.getMessage()));
-        log.info("user_id : {}", user.getId());
-        Page<Alarm> alarms = alarmRepository.findAllByUser(user.getId(), pageable);
-        Page<AlarmDto> alarmDtos = AlarmDto.toDtoList(alarms);
-        return alarmDtos;
+        Page<Alarm> alarms = alarmRepository.findAllByUser(user.getUserName(), pageable);
+        return AlarmDto.toDtoList(alarms);
     }
 }

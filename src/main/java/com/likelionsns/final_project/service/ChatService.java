@@ -79,7 +79,7 @@ public class ChatService {
 
             User recipient = userRepository.findById(findChat.getJoinUser()).orElseThrow();
 
-            alarmRepository.save(Alarm.builder().user(recipient).alarmType(NEW_CHAT).text(NEW_CHAT.getAlarmText()).targetId(recipient.getId()).fromUserId(sender.getId()).build());
+            alarmRepository.save(Alarm.builder().user(recipient).alarmType(NEW_CHAT).text(NEW_CHAT.getAlarmText()).targetUserName(recipient.getUserName()).fromUserName(sender.getUserName()).build());
         }
 
         // 보낸 사람일 경우에만 메시지를 저장 -> 중복 저장 방지

@@ -9,7 +9,7 @@ import org.springframework.data.repository.query.Param;
 
 public interface AlarmRepository extends JpaRepository<Alarm, Integer> {
 
-    @Query("SELECT a FROM Alarm a WHERE a.fromUserId <> :user_id and a.targetId = :user_id")
-    Page<Alarm> findAllByUser(@Param("user_id") Integer user_id, Pageable pageable);
+    @Query("SELECT a FROM Alarm a WHERE a.fromUserName <> :userName and a.targetUserName = :userName")
+    Page<Alarm> findAllByUser(@Param("userName") String userName, Pageable pageable);
 
 }

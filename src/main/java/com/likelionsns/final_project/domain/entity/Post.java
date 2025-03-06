@@ -42,6 +42,7 @@ public class Post extends BaseEntity {
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
     private List<Like> likes = new ArrayList<>();
 
+    @Setter
     @Builder.Default
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PostMedia> mediaList = new ArrayList<>();
@@ -54,10 +55,6 @@ public class Post extends BaseEntity {
         this.comments = comments;
     }
 
-    public void updatePost(String updatedBody) {
-        this.body = updatedBody;
-    }
-
     public void addComment(Comment comment) {
         comments.add(comment);
         comment.addPost(this);
@@ -68,8 +65,7 @@ public class Post extends BaseEntity {
         postMedia.setPost(this);
     }
 
-    public void updateMedia(List<PostMedia> newMediaList) {
-        this.mediaList.clear(); // 기존 리스트 클리어
-        this.mediaList.addAll(newMediaList); // 새로운 리스트 추가
+    public void updateBody(String body) {
+        this.body = body;
     }
 }

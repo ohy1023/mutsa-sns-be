@@ -7,8 +7,6 @@ import com.likelionsns.final_project.domain.dto.PostDto;
 import com.likelionsns.final_project.domain.entity.Post;
 import com.likelionsns.final_project.domain.entity.PostMedia;
 import com.likelionsns.final_project.domain.entity.User;
-import com.likelionsns.final_project.domain.request.PostMediaUpdateRequest;
-import com.likelionsns.final_project.domain.request.PostUpdateRequest;
 import com.likelionsns.final_project.domain.response.PostDetailResponse;
 import com.likelionsns.final_project.domain.response.PostSummaryInfoResponse;
 import com.likelionsns.final_project.exception.SnsAppException;
@@ -57,7 +55,8 @@ public class PostService {
         // JSON 문자열로 전달된 `multipartFileOrderList`를 List<Integer>로 변환
         List<Integer> orderList;
         try {
-            orderList = objectMapper.readValue(multipartFileOrderList, new TypeReference<List<Integer>>() {});
+            orderList = objectMapper.readValue(multipartFileOrderList, new TypeReference<List<Integer>>() {
+            });
         } catch (Exception e) {
             throw new SnsAppException(INVALID_MEDIA_ORDER_LIST, INVALID_MEDIA_ORDER_LIST.getMessage());
         }
@@ -86,52 +85,58 @@ public class PostService {
     }
 
     @Transactional
-    public void updatePost(Integer postId, String userName, PostUpdateRequest request) {
-        User user = findUserByUserName(userName);
-
+    public void updatePost(Integer postId, String body, List<MultipartFile> multipartFileList, String multipartFileOrderList, List<String> existingMediaUrls, String userName) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new SnsAppException(POST_NOT_FOUND, POST_NOT_FOUND.getMessage()));
 
-        // 작성자 확인
-        if (!post.getUser().equals(user)) {
+        // 유저 검증
+        if (!post.getUser().getUserName().equals(userName)) {
             throw new SnsAppException(INVALID_PERMISSION, INVALID_PERMISSION.getMessage());
         }
 
-        // 게시글 내용 수정
-        post.updatePost(request.getBody());
+        // 본문 수정
+        post.updateBody(body);
 
-        // 기존 미디어를 업데이트 (새로 추가/순서 변경/삭제 포함)
-        List<PostMedia> updatedMediaList = new ArrayList<>();
+        // JSON 문자열로 전달된 `multipartFileOrderList`를 List<Integer>로 변환
+        List<Integer> orderList;
+        try {
+            orderList = objectMapper.readValue(multipartFileOrderList, new TypeReference<List<Integer>>() {});
+        } catch (Exception e) {
+            throw new SnsAppException(INVALID_MEDIA_ORDER_LIST, INVALID_MEDIA_ORDER_LIST.getMessage());
+        }
 
-        for (PostMediaUpdateRequest mediaRequest : request.getMediaList()) {
-            if (mediaRequest.getId() != null) {
-                // 기존 미디어 순서 업데이트
-                PostMedia existingMedia = postMediaRepository.findById(mediaRequest.getId())
-                        .orElseThrow(() -> new SnsAppException(MEDIA_NOT_FOUND, MEDIA_NOT_FOUND.getMessage()));
+        // 기존 미디어 URL을 기반으로 유지할 미디어만 필터링
+        List<PostMedia> existingMedia = post.getMediaList().stream()
+                .filter(media -> existingMediaUrls.contains(media.getMediaUrl()))
+                .collect(Collectors.toList());
 
-                if (!existingMedia.getPost().equals(post)) {
-                    throw new SnsAppException(INVALID_PERMISSION, INVALID_PERMISSION.getMessage());
-                }
-                existingMedia.updateOrder(mediaRequest.getOrder());
-                updatedMediaList.add(existingMedia);
+        // 기존 미디어에서 삭제된 것들 제거
+        post.getMediaList().removeIf(media -> !existingMediaUrls.contains(media.getMediaUrl()));
 
-            } else if (mediaRequest.getFile() != null) {
-                // 새로운 미디어 추가
-                String mediaUrl = awsS3Service.uploadPostOriginImage(mediaRequest.getFile());
+        // 새로운 미디어 추가
+        if (multipartFileList != null && !multipartFileList.isEmpty()) {
+            for (int i = 0; i < multipartFileList.size(); i++) {
+                String multipartUrl = awsS3Service.uploadPostOriginImage(multipartFileList.get(i));
 
-                PostMedia newMedia = PostMedia.builder()
-                        .post(post)
-                        .mediaUrl(mediaUrl)
-                        .mediaOrder(mediaRequest.getOrder())
-                        .build();
-
-                updatedMediaList.add(newMedia);
+                existingMedia.add(PostMedia.builder()
+                        .mediaUrl(multipartUrl)
+                        .mediaOrder(orderList.get(i)) // JSON에서 변환한 정수형 리스트 사용
+                        .build());
             }
         }
 
-        // 기존 미디어를 새 순서대로 저장
-        post.updateMedia(updatedMediaList);
+        // 미디어 순서 업데이트
+        for (int i = 0; i < existingMedia.size(); i++) {
+            existingMedia.get(i).updateOrder(orderList.get(i));
+        }
+
+        // 최종 미디어 리스트 적용
+        post.setMediaList(existingMedia);
+
+        // 게시글 저장
+        postRepository.save(post);
     }
+
 
     public boolean delete(String userName, Integer postId) {
         // 사용자 정보 및 게시물 정보 가져오기
@@ -170,13 +175,17 @@ public class PostService {
             Long likeCnt = likeRepository.countByPost(post);
             Long commentCnt = commentRepository.countByPost(post);
 
-            return PostDetailResponse.toResponse(post, postMediaList, likeCnt, commentCnt);
+            Boolean isOwner = post.getUser().equals(user);
+            Boolean isLiked = likeRepository.existsByPostAndUser(post, user);
+
+            return PostDetailResponse.toResponse(post, isOwner, isLiked, postMediaList, likeCnt, commentCnt);
         });
     }
 
 
     @Transactional(readOnly = true)
-    public PostDetailResponse getDetailPost(Integer postId) {
+    public PostDetailResponse getDetailPost(Integer postId, String userName) {
+        User user = findUserByUserName(userName);
         // 게시물 상세 정보 조회
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new SnsAppException(POST_NOT_FOUND, POST_NOT_FOUND.getMessage()));
@@ -187,7 +196,10 @@ public class PostService {
 
         List<PostMedia> postMediaList = postMediaRepository.findPostMediaByPost(post);
 
-        return PostDetailResponse.toResponse(post, postMediaList, likeCnt, commentCnt);
+        Boolean isOwner = post.getUser().equals(user);
+        Boolean isLiked = likeRepository.existsByPostAndUser(post, user);
+
+        return PostDetailResponse.toResponse(post, isOwner, isLiked, postMediaList, likeCnt, commentCnt);
     }
 
     @Transactional(readOnly = true)

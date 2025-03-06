@@ -82,9 +82,15 @@ public class User extends BaseEntity {
         user.userRole = USER;
     }
 
-    public void updateUser(String userProfileImg, UpdateUserRequest updateUserRequest, String newPassword) {
-        this.userImg = userProfileImg;
-        this.nickName = updateUserRequest.getNickName();
+    public void updateImg(String newUserImg) {
+        this.userImg = newUserImg;
+    }
+
+    public void updateNickName(String newNickName) {
+        this.nickName = newNickName;
+    }
+
+    public void updatePassword(String newPassword) {
         this.password = newPassword;
     }
 

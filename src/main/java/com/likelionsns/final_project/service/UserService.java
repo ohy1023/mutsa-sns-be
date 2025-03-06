@@ -84,12 +84,22 @@ public class UserService {
     public void updateUserInfo(MultipartFile multipartFile, UpdateUserRequest updateUserRequest, String userName) {
         User user = findUserByUserName(userName);
 
-        if (isWrongPassword(updateUserRequest.getCurPassword(), user)) {
-            throw new SnsAppException(INVALID_PASSWORD, INVALID_PASSWORD.getMessage());
+        if (updateUserRequest.getCurPassword() != null && updateUserRequest.getNewPassword() != null) {
+            if (isWrongPassword(updateUserRequest.getCurPassword(), user)) {
+                throw new SnsAppException(INVALID_PASSWORD, INVALID_PASSWORD.getMessage());
+            }
+
+            user.updatePassword(encoder.encode(updateUserRequest.getNewPassword()));
         }
 
-        String userProfileImg = awsS3Service.uploadUserOriginImage(multipartFile);
-        user.updateUser(userProfileImg, updateUserRequest, encoder.encode(updateUserRequest.getNewPassword()));
+        if (!multipartFile.isEmpty()) {
+            String userProfileImg = awsS3Service.uploadUserOriginImage(multipartFile);
+            user.updateImg(userProfileImg);
+        }
+
+        if (updateUserRequest.getNickName() != null) {
+            user.updateNickName(updateUserRequest.getNickName());
+        }
     }
 
     public void followUser(String userName, String targetUserName) {

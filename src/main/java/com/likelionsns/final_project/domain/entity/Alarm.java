@@ -24,9 +24,9 @@ public class Alarm extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private AlarmType alarmType;
 
-    private Integer fromUserId;
+    private String fromUserName;
 
-    private Integer targetId;
+    private String targetUserName;
 
     private String text;
 
@@ -35,11 +35,11 @@ public class Alarm extends BaseEntity {
     private User user;
 
     @Builder
-    public Alarm(Integer id, AlarmType alarmType, Integer fromUserId, Integer targetId, String text, User user) {
+    public Alarm(Integer id, AlarmType alarmType, String fromUserName, String targetUserName, String text, User user) {
         this.id = id;
         this.alarmType = alarmType;
-        this.fromUserId = fromUserId;
-        this.targetId = targetId;
+        this.fromUserName = fromUserName;
+        this.targetUserName = targetUserName;
         this.text = text;
         this.user = user;
     }

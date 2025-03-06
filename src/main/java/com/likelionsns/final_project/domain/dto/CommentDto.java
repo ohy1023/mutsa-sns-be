@@ -6,7 +6,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.domain.Page;
 
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 @Getter
@@ -15,16 +14,18 @@ public class CommentDto {
     private Integer id;
     private String comment;
     private String userName;
+    private String userImg;
     private Integer postId;
-    private String createdAt;
+    private String registeredAt;
 
     @Builder
-    public CommentDto(Integer id, String comment, String userName, Integer postId, String createdAt) {
+    public CommentDto(Integer id, String comment, String userName,String userImg, Integer postId, String registeredAt) {
         this.id = id;
         this.comment = comment;
         this.userName = userName;
+        this.userImg = userImg;
         this.postId = postId;
-        this.createdAt = createdAt;
+        this.registeredAt = registeredAt;
     }
 
     public static CommentDto toCommentDto(Comment comment) {
@@ -33,20 +34,21 @@ public class CommentDto {
                 .id(comment.getId())
                 .comment(comment.getComment())
                 .userName(comment.getUser().getUserName())
+                .userImg(comment.getUser().getUserImg())
                 .postId(comment.getPost().getId())
-                .createdAt(comment.getRegisteredAt().format(formatter))
+                .registeredAt(comment.getRegisteredAt().format(formatter))
                 .build();
     }
 
     public static Page<CommentDto> toDtoList(Page<Comment> comments) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 HH시 mm분");
-        Page<CommentDto> commentDtoList = comments.map(m -> CommentDto.builder()
+        return comments.map(m -> CommentDto.builder()
                 .id(m.getId())
                 .comment(m.getComment())
                 .userName(m.getUser().getUserName())
+                .userImg(m.getUser().getUserImg())
                 .postId(m.getPost().getId())
-                .createdAt(m.getRegisteredAt().format(formatter))
+                .registeredAt(m.getRegisteredAt().format(formatter))
                 .build());
-        return commentDtoList;
     }
 }
