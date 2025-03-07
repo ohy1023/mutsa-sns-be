@@ -1,7 +1,6 @@
 package com.likelionsns.final_project.domain.entity;
 
 import com.likelionsns.final_project.domain.enums.UserRole;
-import com.likelionsns.final_project.domain.request.UpdateUserRequest;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -88,10 +87,6 @@ public class User extends BaseEntity {
 
     public void updateNickName(String newNickName) {
         this.nickName = newNickName;
-    }
-
-    public void updatePassword(String newPassword) {
-        this.password = newPassword;
     }
 
     @Builder

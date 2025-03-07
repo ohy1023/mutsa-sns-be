@@ -2,7 +2,6 @@ package com.likelionsns.final_project.service;
 
 import com.likelionsns.final_project.domain.dto.UserDto;
 import com.likelionsns.final_project.domain.entity.Follow;
-import com.likelionsns.final_project.domain.request.UpdateUserRequest;
 import com.likelionsns.final_project.domain.request.UserJoinRequest;
 import com.likelionsns.final_project.domain.response.UserDetailResponse;
 import com.likelionsns.final_project.domain.response.UserInfoResponse;
@@ -22,6 +21,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 
 import static com.likelionsns.final_project.domain.enums.UserRole.*;
 import static com.likelionsns.final_project.domain.enums.UserRole.ADMIN;
@@ -81,24 +83,19 @@ public class UserService {
         return UserRoleResponse.toResponse(targetUser);
     }
 
-    public void updateUserInfo(MultipartFile multipartFile, UpdateUserRequest updateUserRequest, String userName) {
+    public void updateUserInfo(MultipartFile multipartFile, String newNickName, String userName) {
         User user = findUserByUserName(userName);
 
-        if (updateUserRequest.getCurPassword() != null && updateUserRequest.getNewPassword() != null) {
-            if (isWrongPassword(updateUserRequest.getCurPassword(), user)) {
-                throw new SnsAppException(INVALID_PASSWORD, INVALID_PASSWORD.getMessage());
-            }
-
-            user.updatePassword(encoder.encode(updateUserRequest.getNewPassword()));
-        }
-
-        if (!multipartFile.isEmpty()) {
+        if (multipartFile != null && !multipartFile.isEmpty()) {
             String userProfileImg = awsS3Service.uploadUserOriginImage(multipartFile);
             user.updateImg(userProfileImg);
         }
 
-        if (updateUserRequest.getNickName() != null) {
-            user.updateNickName(updateUserRequest.getNickName());
+        if (newNickName != null && !newNickName.isEmpty()) {
+            newNickName = URLDecoder.decode(newNickName, StandardCharsets.UTF_8);
+            if (!user.getNickName().equals(newNickName)) {
+                user.updateNickName(newNickName);
+            }
         }
     }
 
@@ -188,6 +185,21 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public UserDetailResponse getUserInfo(String userName) {
+        User user = findUserByUserName(userName);
+        long followingCount = followRepository.countByFollower(user);
+        long followerCount = followRepository.countByFollowing(user);
+
+        return UserDetailResponse.builder()
+                .userName(user.getUserName())
+                .nickName(user.getNickName())
+                .userImg(user.getUserImg())
+                .followingCount(followingCount)
+                .followerCount(followerCount)
+                .build();
+    }
+
+    @Transactional(readOnly = true)
+    public UserDetailResponse getMyUserInfo(String userName) {
         User user = findUserByUserName(userName);
         long followingCount = followRepository.countByFollower(user);
         long followerCount = followRepository.countByFollowing(user);

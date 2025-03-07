@@ -39,22 +39,13 @@ public class PostController {
     @ApiOperation(value = "포스트 등록")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Void> uploadPost(
-            @RequestPart("postData") String postDataJson,
+            @RequestPart String body,
             @RequestPart(value = "multipartFileList", required = false) List<MultipartFile> multipartFileList,
             @RequestPart(value = "multipartFileOrderList", required = false) String multipartFileOrderList,
             Authentication authentication
     ) {
 
-        ObjectMapper objectMapper = new ObjectMapper();
-        PostCreateRequest postData;
-        try {
-            postData = objectMapper.readValue(postDataJson, PostCreateRequest.class);
-        } catch (JsonProcessingException e) {
-            log.error("파싱 오류");
-            return null;
-        }
-
-        postService.createPost(postData.getBody(), multipartFileList, multipartFileOrderList, authentication.getName());
+        postService.createPost(body, multipartFileList, multipartFileOrderList, authentication.getName());
 
         return ResponseEntity.noContent().build();
     }
@@ -63,25 +54,23 @@ public class PostController {
     @PutMapping(value = "/{postId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Void> updatePost(
             @PathVariable Integer postId,
-            @RequestPart("postData") String postDataJson,
+            @RequestPart("postData") String newBody,
             @RequestPart(value = "multipartFileList", required = false) List<MultipartFile> multipartFileList,
             @RequestPart(value = "multipartFileOrderList", required = false) String multipartFileOrderList,
             @RequestPart(value = "existingMediaUrls", required = false) String existingMediaUrlsJson,
             Authentication authentication
     ) {
         ObjectMapper objectMapper = new ObjectMapper();
-        PostUpdateRequest postData;
         List<String> existingMediaUrls;
 
         try {
-            postData = objectMapper.readValue(postDataJson, PostUpdateRequest.class);
             existingMediaUrls = objectMapper.readValue(existingMediaUrlsJson, new TypeReference<List<String>>() {});
         } catch (JsonProcessingException e) {
             log.error("파싱 오류", e);
             return ResponseEntity.badRequest().build();
         }
 
-        postService.updatePost(postId, postData.getBody(), multipartFileList, multipartFileOrderList, existingMediaUrls, authentication.getName());
+        postService.updatePost(postId, newBody, multipartFileList, multipartFileOrderList, existingMediaUrls, authentication.getName());
 
         return ResponseEntity.noContent().build();
     }
@@ -116,16 +105,14 @@ public class PostController {
     @GetMapping("/my")
     public ResponseEntity<Response<Page<PostSummaryInfoResponse>>> getMyPost(@PageableDefault(size = 9)
                                                                              @SortDefault(sort = "registeredAt", direction = Sort.Direction.DESC) Pageable pageable, Authentication authentication) {
-        Page<PostSummaryInfoResponse> myPosts = postService.getUserPost(authentication.getName(), pageable);
-        return ResponseEntity.ok().body(Response.success(myPosts));
+        return ResponseEntity.ok().body(Response.success(postService.getUserPost(authentication.getName(), pageable)));
     }
 
     @ApiOperation(value = "해당 유저의 피드 요약 목록")
     @GetMapping("/info/{userName}")
-    public ResponseEntity<Response<Page<PostSummaryInfoResponse>>> getMyPost(@PathVariable String userName, @PageableDefault(size = 9)
+    public ResponseEntity<Response<Page<PostSummaryInfoResponse>>> getUserPost(@PathVariable String userName, @PageableDefault(size = 9)
     @SortDefault(sort = "registeredAt", direction = Sort.Direction.DESC) Pageable pageable) {
-        Page<PostSummaryInfoResponse> myPosts = postService.getUserPost(userName, pageable);
-        return ResponseEntity.ok().body(Response.success(myPosts));
+        return ResponseEntity.ok().body(Response.success(postService.getUserPost(userName, pageable)));
     }
 
     @ApiOperation(value = "삭제된 피드 목록", notes = "삭제 된 포스트 목록")

@@ -1,7 +1,6 @@
 package com.likelionsns.final_project.controller.api;
 
 import com.likelionsns.final_project.domain.dto.AlarmDto;
-import com.likelionsns.final_project.domain.request.UpdateUserRequest;
 import com.likelionsns.final_project.domain.request.UserLoginRequest;
 import com.likelionsns.final_project.domain.response.*;
 import com.likelionsns.final_project.domain.request.UserJoinRequest;
@@ -58,9 +57,9 @@ public class UserController {
     }
 
     @ApiOperation("회원 정보 수정")
-    @PatchMapping
-    public ResponseEntity<Void> changeUserInfo(@RequestPart(required = false) MultipartFile multipartFile, UpdateUserRequest updateUserRequest, Authentication authentication) {
-        userService.updateUserInfo(multipartFile, updateUserRequest, authentication.getName());
+    @PatchMapping("/info")
+    public ResponseEntity<Void> changeUserInfo(@RequestPart(required = false) MultipartFile multipartFile, @RequestPart(required = false) String newNickName, Authentication authentication) {
+        userService.updateUserInfo(multipartFile, newNickName, authentication.getName());
         return ResponseEntity.noContent().build();
     }
 
@@ -106,12 +105,6 @@ public class UserController {
         return ResponseEntity.ok().body(Response.success(userService.getFollowersPage(authentication.getName(), pageable)));
     }
 
-    @ApiOperation("나의 정보 조회")
-    @GetMapping("/my-info")
-    public ResponseEntity<Response<UserDetailResponse>> getMyInfo(Authentication authentication) {
-        return ResponseEntity.ok().body(Response.success(userService.getUserInfo(authentication.getName())));
-    }
-
     @ApiOperation("해당 유저 팔로우 유무")
     @GetMapping("/follow-check/{targetUserName}")
     public ResponseEntity<Boolean> followCheck(
@@ -151,6 +144,12 @@ public class UserController {
     @GetMapping("/{userName}")
     public ResponseEntity<Response<UserDetailResponse>> getUserInfo(@PathVariable String userName) {
         return ResponseEntity.ok().body(Response.success(userService.getUserInfo(userName)));
+    }
+
+    @ApiOperation("유저 정보 조회")
+    @GetMapping("/info")
+    public ResponseEntity<Response<UserDetailResponse>> getMyUserInfo(Authentication authentication) {
+        return ResponseEntity.ok().body(Response.success(userService.getMyUserInfo(authentication.getName())));
     }
 
 

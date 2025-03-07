@@ -21,6 +21,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -49,7 +51,7 @@ public class PostService {
         // 게시글 생성
         Post post = Post.builder()
                 .user(user)
-                .body(body)
+                .body(URLDecoder.decode(body, StandardCharsets.UTF_8))
                 .build();
 
         // JSON 문자열로 전달된 `multipartFileOrderList`를 List<Integer>로 변환
