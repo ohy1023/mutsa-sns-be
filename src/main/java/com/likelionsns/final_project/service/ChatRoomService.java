@@ -12,7 +12,7 @@ import com.likelionsns.final_project.repository.ChatRoomRepository;
 import com.likelionsns.final_project.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -21,8 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.likelionsns.final_project.exception.ErrorCode.ALREADY_CHAT_ROOM;
@@ -43,42 +42,51 @@ public class ChatRoomService {
     @Transactional
     public Chat makeChatRoom(String userName, ChatRequestDto requestDto) {
 
-        User findUser = userRepository.findByUserName(userName).orElseThrow(() -> new SnsAppException(USERNAME_NOT_FOUND, USERNAME_NOT_FOUND.getMessage()));
-        User joinUser = userRepository.findByUserName(requestDto.getJoinUserName()).orElseThrow(() -> new SnsAppException(USERNAME_NOT_FOUND, USERNAME_NOT_FOUND.getMessage()));
+        User findUser = findUserByUserName(userName);
+        User joinUser = findUserByUserName(requestDto.getJoinUserName());
 
-
-        chatRoomRepository.findActiveChat(findUser.getId(), joinUser.getId())
+        chatRoomRepository.findActiveChat(findUser.getUserName(), joinUser.getUserName())
                 .ifPresent(chat -> {
                     throw new SnsAppException(ALREADY_CHAT_ROOM, ALREADY_CHAT_ROOM.getMessage());
                 });
 
-        Chat chat = Chat.builder().createUser(findUser.getId()).joinUser(joinUser.getId()).regDate(LocalDateTime.now()).build();
+        Chat chat = Chat.builder().createUser(findUser.getUserName()).joinUser(joinUser.getUserName()).regDate(LocalDateTime.now()).build();
 
         return chatRoomRepository.save(chat);
     }
 
-    public List<MyChatRoomResponse> getChatRoomList(String userName) {
-        // 사용자 이름으로 사용자 정보 조회
-        User findUser = userRepository.findByUserName(userName).orElseThrow();
+    public Slice<MyChatRoomResponse> getChatRoomList(String userName, Pageable pageable) {
+        User findUser = findUserByUserName(userName);
 
-        // 사용자가 참여한 채팅방 목록을 조회하고, 각 채팅방 정보를 변환하여 리스트로 반환
-        return chatRoomRepository.findChattingRoom(findUser.getId()).stream().map(chat -> {
-            User user;
-            if (!Objects.equals(findUser.getId(), chat.getCreateUser())) {
-                // 채팅 생성자와 사용자가 다른 경우, 생성자 정보를 조회
-                user = userRepository.findById(chat.getCreateUser()).orElseThrow();
-            } else {
-                // 채팅 생성자와 사용자가 같은 경우, 조인 사용자 정보를 조회
-                user = userRepository.findById(chat.getJoinUser()).orElseThrow();
-            }
+        // 사용자가 참여한 채팅방 목록을 조회
+        Slice<Chat> chatRooms = chatRoomRepository.findChattingRoom(findUser.getUserName(), pageable);
 
-            // 읽지 않은 메시지 수와 마지막 메시지 내용 조회
-            long unReadMessages = countUnReadMessages(chat.getChatNo(), userName);
-            String lastMessage = findLastMessage(chat.getChatNo());
+        List<MyChatRoomResponse> chatRoomResponses = chatRooms.getContent().stream().map(chat -> {
+                    User user;
+                    if (!findUser.getUserName().equals(chat.getCreateUser())) {
+                        user = findUserByUserName(chat.getCreateUser());
+                    } else {
+                        user = findUserByUserName(chat.getJoinUser());
+                    }
 
-            // 채팅방 정보를 변환하여 반환
-            return chat.toResponse(user, unReadMessages, lastMessage);
-        }).collect(Collectors.toList());
+                    long unReadMessages = countUnReadMessages(chat.getChatNo(), userName);
+
+                    // 마지막 메시지와 메시지 시간 조회
+                    Map<String, Object> lastMessageInfo = getLastMessageInfo(chat.getChatNo(), chat.getRegDate());
+                    String lastMessage = (String) lastMessageInfo.get("content");
+                    LocalDateTime lastMessageTime = (LocalDateTime) lastMessageInfo.get("sendDate");
+
+                    return chat.toResponse(user, unReadMessages, lastMessage, lastMessageTime);
+                })
+                .sorted(Comparator.comparing(MyChatRoomResponse::getLastMessageTime, Comparator.nullsLast(Comparator.reverseOrder())))
+                .collect(Collectors.toList());
+
+        // 페이징 처리
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), chatRoomResponses.size());
+        List<MyChatRoomResponse> pagedList = chatRoomResponses.subList(start, end);
+
+        return new SliceImpl<>(pagedList, pageable, end < chatRoomResponses.size());
     }
 
 
@@ -121,18 +129,27 @@ public class ChatRoomService {
         return mongoTemplate.count(query, Chatting.class);
     }
 
-    public String findLastMessage(Integer chatRoomNo) {
+    private Optional<Chatting> findLastMessage(Integer chatRoomNo) {
         Query query = new Query(Criteria.where("chatRoomNo").is(chatRoomNo))
-                .with(Sort.by(Sort.Order.desc("sendDate")))
+                .with(Sort.by(Sort.Order.desc("sendDate"))) // 최신 메시지를 기준으로 정렬
                 .limit(1);
 
-        try {
-            return mongoTemplate.findOne(query, Chatting.class).getContent();
-        } catch (Exception e) {
-            log.info(e.getMessage());
-            return "";
+        return Optional.ofNullable(mongoTemplate.findOne(query, Chatting.class));
+    }
+
+    private Map<String, Object> getLastMessageInfo(Integer chatRoomNo, LocalDateTime regDate) {
+        Optional<Chatting> lastMessage = findLastMessage(chatRoomNo);
+
+        if (lastMessage.isPresent()) {
+            Chatting chat = lastMessage.get();
+            Map<String, Object> messageInfo = new HashMap<>();
+            messageInfo.put("content", chat.getContent()); // 마지막 메시지 내용
+            messageInfo.put("sendDate", chat.getSendDate()); // 마지막 메시지 시간
+            return messageInfo;
         }
 
+        // 메시지가 없는 경우 기본 값 반환
+        return Map.of("content", "", "sendDate", regDate);
     }
 
     public void updateUnreadMessagesToRead(Integer chatRoomNo, String userName) {
@@ -142,5 +159,10 @@ public class ChatRoomService {
         Query query = new Query(Criteria.where("chatRoomNo").is(chatRoomNo).and("senderName").ne(findUser.getUserName()));
 
         mongoTemplate.updateMulti(query, update, Chatting.class);
+    }
+
+    private User findUserByUserName(String userName) {
+        return userRepository.findByUserName(userName)
+                .orElseThrow(() -> new SnsAppException(USERNAME_NOT_FOUND, USERNAME_NOT_FOUND.getMessage()));
     }
 }

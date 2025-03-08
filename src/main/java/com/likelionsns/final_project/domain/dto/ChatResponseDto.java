@@ -13,9 +13,7 @@ import java.time.ZoneId;
 public class ChatResponseDto {
     private String id;
     private Integer chatRoomNo;
-    private Integer senderNo;
     private String senderName;
-    private String contentType;
     private String content;
     private long sendDate;
     private long readCount;

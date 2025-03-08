@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -15,7 +17,13 @@ public class MyChatRoomResponse {
 
     private String joinUserName;
 
+    private String joinNickName;
+
+    private String joinUserImg;
+
     private Long notReadMessageCnt;
 
     private String lastContent;
+
+    private LocalDateTime lastMessageTime;
 }

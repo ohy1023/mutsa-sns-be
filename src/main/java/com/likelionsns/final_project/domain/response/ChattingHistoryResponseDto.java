@@ -12,6 +12,6 @@ import java.util.List;
 public class ChattingHistoryResponseDto {
 
     private String userName;
-
+    private String userImg;
     private List<ChatResponseDto> chatList;
 }

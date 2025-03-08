@@ -11,6 +11,11 @@ import com.likelionsns.final_project.service.ChatRoomService;
 import com.likelionsns.final_project.service.ChatService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.data.web.SortDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -18,7 +23,6 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
 @Slf4j
 @RestController
@@ -41,22 +45,24 @@ public class ChatController {
         return ResponseEntity.ok(Response.success(chat));
     }
 
-
-    // 채팅내역 조회
+    // 채팅내역 조회 (페이징 적용)
     @GetMapping("/chatroom/{roomNo}")
-    public ResponseEntity<Response<ChattingHistoryResponseDto>> chattingList(@PathVariable("roomNo") Integer roomNo, Authentication authentication) {
+    public ResponseEntity<Response<Slice<ChattingHistoryResponseDto>>> chattingList(
+            @PathVariable("roomNo") Integer roomNo,
+            Authentication authentication,
+            @PageableDefault(size = 10) @SortDefault(sort = "sendDate", direction = Sort.Direction.DESC) Pageable pageable
+    ) {
         String userName = authentication.getName();
-        ChattingHistoryResponseDto chattingList = chatService.getChattingList(roomNo, userName);
+        Slice<ChattingHistoryResponseDto> chattingList = chatService.getChattingList(roomNo, userName, pageable);
         return ResponseEntity.ok(Response.success(chattingList));
     }
 
-    //내가 참여중인 채팅 방 조회
+    // 내가 참여 중인 채팅방 조회 (페이징 적용)
     @GetMapping("/my-chatroom")
-    public ResponseEntity<Response<List<MyChatRoomResponse>>> chatRoomList(Authentication authentication) {
+    public ResponseEntity<Response<Slice<MyChatRoomResponse>>> chatRoomList(
+            Authentication authentication, Pageable pageable) {
         String myName = authentication.getName();
-
-        List<MyChatRoomResponse> chatRoomList = chatRoomService.getChatRoomList(myName);
-
+        Slice<MyChatRoomResponse> chatRoomList = chatRoomService.getChatRoomList(myName, pageable);
         return ResponseEntity.ok(Response.success(chatRoomList));
     }
 

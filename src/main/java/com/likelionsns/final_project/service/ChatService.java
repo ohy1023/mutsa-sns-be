@@ -16,6 +16,7 @@ import com.likelionsns.final_project.utils.JwtUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,9 +44,26 @@ public class ChatService {
     @Value("${jwt.secret}")
     private String secretKey;
 
-    public ChattingHistoryResponseDto getChattingList(Integer chatRoomNo, String userName) {
-        List<ChatResponseDto> chattingList = mongoChatRepository.findByChatRoomNo(chatRoomNo).stream().map(chat -> new ChatResponseDto(chat, userName)).collect(Collectors.toList());
-        return ChattingHistoryResponseDto.builder().chatList(chattingList).userName(userName).build();
+    public Slice<ChattingHistoryResponseDto> getChattingList(Integer chatRoomNo, String userName, Pageable pageable) {
+        User user = findUserByUserName(userName);
+
+        // MongoDB에서 채팅 내역을 페이징 조회 (Slice 사용)
+        Slice<Chatting> chattingPage = mongoChatRepository.findByChatRoomNo(chatRoomNo, pageable);
+
+        // 각 채팅 메시지를 DTO로 변환
+        List<ChatResponseDto> chatList = chattingPage.getContent().stream()
+                .map(chat -> new ChatResponseDto(chat, userName))
+                .collect(Collectors.toList());
+
+        // ChattingHistoryResponseDto 생성
+        ChattingHistoryResponseDto response = ChattingHistoryResponseDto.builder()
+                .chatList(chatList)
+                .userName(userName)
+                .userImg(user.getUserImg())
+                .build();
+
+        // SliceImpl로 변환하여 반환
+        return new SliceImpl<>(List.of(response), pageable, chattingPage.hasNext());
     }
 
     public void sendMessage(Message message, String accessToken) {
@@ -58,7 +76,7 @@ public class ChatService {
         // 채팅방에 모든 유저가 참여중인지 확인한다.
         boolean isConnectedAll = chatRoomService.isAllConnected(message.getChatNo());
         // 1:1 채팅이므로 2명 접속시 readCount 0, 한명 접속시 1
-        Integer readCount = isConnectedAll ? 0 : 1;
+        int readCount = isConnectedAll ? 0 : 1;
         // message 객체에 보낸시간, 보낸사람을 셋팅해준다.
         message.setSendTimeAndSender(LocalDateTime.now(), user.getUserName(), readCount);
         // 메시지를 전송한다.
@@ -77,7 +95,7 @@ public class ChatService {
             // 알람 전송을 위해 메시지를 받는 사람을 조회한다.
             Chat findChat = chatRoomRepository.findById(message.getChatNo()).orElseThrow();
 
-            User recipient = userRepository.findById(findChat.getJoinUser()).orElseThrow();
+            User recipient = findUserByUserName(findChat.getJoinUser());
 
             alarmRepository.save(Alarm.builder().user(recipient).alarmType(NEW_CHAT).text(NEW_CHAT.getAlarmText()).targetUserName(recipient.getUserName()).fromUserName(sender.getUserName()).build());
         }
@@ -114,5 +132,10 @@ public class ChatService {
                 .build();
 
         sender.send(KAFKA_TOPIC, message);
+    }
+
+    private User findUserByUserName(String userName) {
+        return userRepository.findByUserName(userName)
+                .orElseThrow(() -> new SnsAppException(USERNAME_NOT_FOUND, USERNAME_NOT_FOUND.getMessage()));
     }
 }

@@ -21,21 +21,24 @@ public class Chat {
     private Integer chatNo;
 
     @Column(name = "create_user")
-    private Integer createUser;
+    private String createUser;
 
     @Column(name = "join_user")
-    private Integer joinUser;
+    private String joinUser;
 
     @Column(name = "reg_date")
     private LocalDateTime regDate;
 
 
-    public MyChatRoomResponse toResponse(User user, Long cnt, String message) {
+    public MyChatRoomResponse toResponse(User user, Long cnt, String message, LocalDateTime lastMessageTime) {
         return MyChatRoomResponse.builder()
                 .chatRoomId(this.chatNo)
                 .joinUserName(user.getUserName())
+                .joinNickName(user.getNickName())
+                .joinUserImg(user.getUserImg())
                 .notReadMessageCnt(cnt)
                 .lastContent(message)
+                .lastMessageTime(lastMessageTime)
                 .build();
     }
 
