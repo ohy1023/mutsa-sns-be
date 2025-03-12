@@ -161,10 +161,10 @@ public class UserService {
     @Transactional(readOnly = true)
     public Page<UserInfoResponse> getFollowersPage(String userName, Pageable pageable) {
         return followRepository.findByFollowing(findUserByUserName(userName), pageable).map(follow -> new UserInfoResponse(
-                follow.getFollowing().getId(),
-                follow.getFollowing().getUserName(),
-                follow.getFollowing().getNickName(),
-                follow.getFollowing().getUserImg()
+                follow.getFollower().getId(),
+                follow.getFollower().getUserName(),
+                follow.getFollower().getNickName(),
+                follow.getFollower().getUserImg()
         ));
     }
 
