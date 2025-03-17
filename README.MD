@@ -23,23 +23,7 @@
 
 ![img.png](erd.png)
 
-### ✔ Front
-
-#### home 화면
-
-![img.png](img.png)
-
-### 포스트 화면
-
-![img_1.png](img_1.png)
-
-#### 채팅 화면
- 
-![chat.gif](chat.gif)
-
 ### ✔ API 명세서
-
-- [Swagger](https://port-0-mutsa-sns-m7plej378a04f632.sel4.cloudtype.app/swagger-ui/index.html#/)
 
 | Category | Method | URL                                 | Description       | note                      |
 |----------|--------|-------------------------------------|-------------------|---------------------------|
